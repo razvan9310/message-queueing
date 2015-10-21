@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="ASL" default="" basedir=".">
+	<property name="src.dir" value="src" />
+	<property name="build.dir" value="bin" />
+	<property name="dist.dir" value="dist" />
+
+	<property environment="env"/>
+	
+	<path id="project.classpath">
+		<pathelement location="${build.dir}" />
+		<pathelement location="lib/junit-4.11.jar" />
+	        <pathelement location="lib/postgresql-9.3-1102.jdbc41.jar"/>
+	</path>
+
+	<target name="compile" description="Create the build/ dir and compile the project.">
+		<mkdir dir="${build.dir}" />
+		<javac srcdir="${src.dir}" destdir="${build.dir}" classpathref="project.classpath" debug="true" deprecation="true" includeantruntime="false" />
+	</target>
+
+	<target name="create-tables">
+	  	<exec executable="/bin/bash">
+	  		<arg value="-c" />
+	  		<arg value="cat scripts/create_tables.sql | psql -U ${env.DATABASE_USER} ${env.DATABASE_NAME}" />
+	  	</exec>
+	</target>
+
+	<target name="drop-tables">
+	  	<exec executable="/bin/bash">
+	  		<arg value="-c" />
+	  		<arg value="cat scripts/drop_tables.sql | psql -U ${env.DATABASE_USER} ${env.DATABASE_NAME}" />
+	  	</exec>
+	</target>
+
+	<target name="create-stored-procedures">
+	  	<exec executable="/bin/bash">
+	  		<arg value="-c" />
+	  		<arg value="cat scripts/create_stored_procedures.sql | psql -U ${env.DATABASE_USER} ${env.DATABASE_NAME}" />
+	 	</exec>
+	</target>
+	
+	<target name="drop-stored-procedures">
+	 	 <exec executable="/bin/bash">
+	  		<arg value="-c" />
+	  		<arg value="cat scripts/drop_stored_procedures.sql | psql -U ${env.DATABASE_USER} ${env.DATABASE_NAME}" />
+	 	</exec>
+	</target>
+
+	<target name="create-indices">
+		<exec executable="/bin/bash">
+		  	<arg value="-c" />
+		  	<arg value="cat scripts/create_indices.sql | psql -U ${env.DATABASE_USER} ${env.DATABASE_NAME}" />
+		</exec>
+	</target>
+
+	<target name="drop-indices">
+	 	 <exec executable="/bin/bash">
+	  		<arg value="-c" />
+	  		<arg value="cat scripts/drop_indices.sql | psql -U ${env.DATABASE_USER} ${env.DATABASE_NAME}" />
+	 	</exec>
+	</target>
+</project>
