@@ -1,0 +1,137 @@
+package server;
+
+import server.database.DatabaseThreadPoolExecutor;
+
+import java.io.IOException;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.nio.channels.spi.SelectorProvider;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
+
+/**
+ * Created by razvan on 21.10.2015.
+ */
+public class Server {
+  private static final Logger LOGGER = Logger.getLogger(Server.class.getName());
+
+  public static ExecutorService clientExecutor;
+  public static ExecutorService databaseExecutor;
+
+  private ServerSocketChannel serverSocketChannel;
+
+  public Server(ServerSocketChannel serverSocketChannel) {
+    this.serverSocketChannel = serverSocketChannel;
+    clientExecutor = Executors.newFixedThreadPool(10);
+    databaseExecutor = new DatabaseThreadPoolExecutor(10, 10, 0, TimeUnit.NANOSECONDS,
+        new LinkedBlockingQueue<Runnable>());
+  }
+
+  public void start() {
+    try {
+      Selector selector = SelectorProvider.provider().openSelector();
+      serverSocketChannel.configureBlocking(false);
+      serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
+
+      while (true) {
+        if (selector.select() == 0) {
+          continue;
+        }
+        Set<SelectionKey> selectedKeys = selector.selectedKeys();
+        Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
+        while (keyIterator.hasNext()) {
+          SelectionKey key = keyIterator.next();
+          keyIterator.remove();
+          if (!key.isValid()) {
+            continue;
+          }
+          if (key.isAcceptable()) {
+            LOGGER.info("Accepting new connection.");
+            ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key.channel();
+            SocketChannel socketChannel = serverSocketChannel.accept();
+            socketChannel.configureBlocking(false);
+            socketChannel.register(selector, SelectionKey.OP_READ);
+          } else if (key.isReadable()) {
+
+          }
+        }
+      }
+    } catch (IOException e) {
+      LOGGER.severe("Server error: " + e.getMessage());
+    }
+  }
+}
+
+//  public void run() {
+//    LOGGER.fine("Start server main loop");
+//
+//    try {
+//      // Selector for incoming time requests
+//      Selector selector = SelectorProvider.provider().openSelector();
+//
+//      // Create a new server socket and set to non blocking mode
+//      ssc.configureBlocking(false);
+//
+//      ssc.register(selector,
+//              SelectionKey.OP_ACCEPT);
+//
+//      while(true) {
+//        int readyChannels = selector.select();
+//        if(readyChannels == 0) continue;
+//
+//        Set<SelectionKey> selectedKeys = selector.selectedKeys();
+//
+//        Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
+//        while(keyIterator.hasNext()) {
+//          SelectionKey key = keyIterator.next();
+//          if (!key.isValid()) {
+//            continue;
+//          }
+//
+//          if(key.isAcceptable()) {
+//            LOGGER.info("Accept new connection");
+//
+//            ServerSocketChannel sc =
+//                    (ServerSocketChannel) key.channel();
+//
+//            // Accept the date request and send back the date string
+//            SocketChannel channel = sc.accept();
+//            channel.configureBlocking(false);
+//            channel.register(selector, SelectionKey.OP_READ);
+//          } else if (key.isReadable()) {
+//            ClientConnection con = (ClientConnection) key.attachment();
+//            if (con == null) {
+//              con = clientConFactory.create((SocketChannel) key.channel(), key);
+//              LOGGER.info("CREATE "+con.toString()+" "+key.toString());
+//
+//              key.attach(con);
+//            }
+//
+//            con.clockRequestSubmitTime();
+//            byte[] data = con.read((SocketChannel) key.channel());
+//            if (data != null) {
+//              Server.FRONTEND_POOL.execute(new RequestHandler(con, data, con.getLength()));
+//            }
+//          }
+//          keyIterator.remove();
+//        }
+//      }
+//    } catch (IOException e) {
+//      e.printStackTrace();
+//    }
+//
+//    try {
+//      this.ssc.close();
+//    } catch (IOException e) {
+//      // Ignore Error on shutdown
+//    }
+//    FRONTEND_POOL.shutdown();
+//    DB_POOL.shutdown();
+//  }
