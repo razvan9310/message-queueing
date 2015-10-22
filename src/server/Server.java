@@ -16,9 +16,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-/**
- * Created by razvan on 21.10.2015.
- */
 public class Server {
   private static final Logger LOGGER = Logger.getLogger(Server.class.getName());
 

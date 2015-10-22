@@ -11,9 +11,6 @@ import message.SendMessageResponse;
 
 import java.io.IOException;
 
-/**
- * Created by razvan on 22.10.2015.
- */
 public class ClientMain {
   public static void main(String[] args) throws IOException {
     int port = Integer.parseInt(args[0]);
@@ -24,16 +21,16 @@ public class ClientMain {
     System.out.println("Created queue: " + queue);
 
     for (int i = 0; i < 10; ++i) {
-      response = (SendMessageResponse) client.sendRequest(
+      response = client.sendRequest(
           new SendMessageRequest(1, 1, queue, "request no " + i));
       System.out.println(i + ": " + ((SendMessageResponse) response).isSentSuccessfully());
     }
 
-    response = (MessageResponse) client.sendRequest(new PeekQueueRequest(1, queue));
+    response = client.sendRequest(new PeekQueueRequest(1, queue));
     System.out.println("Peek: " + ((MessageResponse) response).getText());
 
     for (int i = 0; i < 10; ++i) {
-      response = (MessageResponse) client.sendRequest(new PopQueueRequest(1, queue));
+      response = client.sendRequest(new PopQueueRequest(1, queue));
       System.out.println("Pop: " + ((MessageResponse) response).getText());
     }
   }

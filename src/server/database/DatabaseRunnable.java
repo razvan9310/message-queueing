@@ -2,9 +2,6 @@ package server.database;
 
 import java.sql.Connection;
 
-/**
- * Created by razvan on 21.10.2015.
- */
 public abstract class DatabaseRunnable implements Runnable {
   protected Connection connection;
 

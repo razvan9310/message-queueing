@@ -3,9 +3,6 @@ package message;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-/**
- * Created by razvan on 21.10.2015.
- */
 public abstract class Response {
   public static final byte TYPE_INVALID = 0;
   public static final byte TYPE_SENT_OK = 1;

@@ -8,9 +8,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.logging.Logger;
 
-/**
- * Created by razvan on 22.10.2015.
- */
 public class ConnectionHandler {
   private static final Logger LOGGER = Logger.getLogger(ConnectionHandler.class.getName());
   private static final int BUFFER_SIZE = 2048;

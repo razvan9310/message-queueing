@@ -4,9 +4,6 @@ import database.ConnectionHelper;
 
 import java.sql.Connection;
 
-/**
- * Created by razvan on 21.10.2015.
- */
 public class DatabaseThread extends Thread {
   private Connection connection;
 

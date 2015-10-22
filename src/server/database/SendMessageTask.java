@@ -1,6 +1,5 @@
 package server.database;
 
-import database.Message;
 import database.MessageHelper;
 import message.SendMessageRequest;
 import message.SendMessageResponse;
@@ -8,9 +7,6 @@ import server.ConnectionHandler;
 import server.ResponseHandler;
 import server.Server;
 
-/**
- * Created by razvan on 22.10.2015.
- */
 public class SendMessageTask extends DatabaseRunnable {
   private SendMessageRequest request;
   private ConnectionHandler connectionHandler;

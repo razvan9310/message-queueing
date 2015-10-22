@@ -5,12 +5,8 @@ import message.Response;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Created by razvan on 22.10.2015.
- */
 public class ResponseHandler implements Runnable {
   private static final Logger LOGGER = Logger.getLogger(ResponseHandler.class.getName());
 

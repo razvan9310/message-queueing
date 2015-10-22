@@ -4,9 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-/**
- * Created by razvan on 21.10.2015.
- */
 public class SendMessageRequest extends Request {
   public static final int NO_RECEIVER = -1;
 

@@ -7,9 +7,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
-/**
- * Created by razvan on 21.10.2015.
- */
 public class QueueHelper {
   private static final Logger LOGGER = Logger.getLogger(QueueHelper.class.getName());
 

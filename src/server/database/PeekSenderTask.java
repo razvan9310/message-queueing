@@ -9,9 +9,6 @@ import server.ConnectionHandler;
 import server.ResponseHandler;
 import server.Server;
 
-/**
- * Created by razvan on 22.10.2015.
- */
 public class PeekSenderTask extends DatabaseRunnable {
   private PeekSenderRequest request;
   private ConnectionHandler connectionHandler;

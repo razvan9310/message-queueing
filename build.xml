@@ -59,4 +59,23 @@
 	  		<arg value="cat scripts/drop_indices.sql | psql -U ${env.DATABASE_USER} ${env.DATABASE_NAME}" />
 	 	</exec>
 	</target>
+	
+	<target name="bundle-server" depends="compile" description="Creates server.jar">
+		<jar destfile="${dist.dir}/server.jar" basedir="${build.dir}/" excludes="client/**" >
+		<zipgroupfileset dir="lib" includes="postgre*.jar"/>
+		<manifest>
+		      <attribute name="Main-Class" value="server.ServerMain"/>
+		    </manifest>
+		</jar>
+	</target>
+
+	<target name="bundle-client" depends="compile" description="Creates client.jar">
+		<jar destfile="${dist.dir}/client.jar" basedir="${build.dir}/"
+	       excludes="server/**" >
+		    <manifest>
+		      <attribute name="Main-Class"
+		            value="client.ClientMain"/>
+		    </manifest>
+		</jar>
+	</target>
 </project>

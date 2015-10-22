@@ -3,9 +3,6 @@ package message;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-/**
- * Created by razvan on 21.10.2015.
- */
 public class SendMessageResponse extends Response {
   private boolean sentSuccessfully;
 

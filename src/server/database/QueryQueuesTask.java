@@ -9,9 +9,6 @@ import server.Server;
 
 import java.util.ArrayList;
 
-/**
- * Created by razvan on 22.10.2015.
- */
 public class QueryQueuesTask extends DatabaseRunnable {
   private QueryQueuesRequest request;
   private ConnectionHandler connectionHandler;

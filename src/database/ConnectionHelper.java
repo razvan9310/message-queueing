@@ -5,9 +5,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.logging.Logger;
 
-/**
- * Created by razvan on 21.10.2015.
- */
 public class ConnectionHelper {
   private static final Logger LOGGER = Logger.getLogger(ConnectionHelper.class.getName());
   private static final String DATABASE_URL_ENV_VAR_NAME = "DATABASE_URL";

@@ -5,9 +5,6 @@ import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.util.logging.Logger;
 
-/**
- * Created by razvan on 22.10.2015.
- */
 public class ServerMain {
   private static final Logger LOGGER = Logger.getLogger(ServerMain.class.getName());
 

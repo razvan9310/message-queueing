@@ -4,9 +4,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * Created by razvan on 21.10.2015.
- */
 public class QueryQueuesResponse extends Response {
   private List<Integer> queues;
 

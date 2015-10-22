@@ -2,9 +2,6 @@ package message;
 
 import java.io.IOException;
 
-/**
- * Created by razvan on 21.10.2015.
- */
 public abstract class Request {
   public static final byte TYPE_PEEK_QUEUE = 0;
   public static final byte TYPE_PEEK_SENDER = 1;

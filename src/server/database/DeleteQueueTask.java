@@ -7,9 +7,6 @@ import server.ConnectionHandler;
 import server.ResponseHandler;
 import server.Server;
 
-/**
- * Created by razvan on 22.10.2015.
- */
 public class DeleteQueueTask extends DatabaseRunnable {
   private DeleteQueueRequest request;
   private ConnectionHandler connectionHandler;

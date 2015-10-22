@@ -19,9 +19,6 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 
-/**
- * Created by razvan on 21.10.2015.
- */
 public class Client {
   private Socket socket;
   private DataInputStream dataInputStream;

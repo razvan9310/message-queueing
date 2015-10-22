@@ -24,9 +24,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-/**
- * Created by razvan on 22.10.2015.
- */
 public class RequestHandler implements Runnable {
   private static final Logger LOGGER = Logger.getLogger(RequestHandler.class.getName());
 

@@ -1,8 +1,5 @@
 package database;
 
-/**
- * Created by razvan on 21.10.2015.
- */
 public class Message {
   private int id;
   private int sender;

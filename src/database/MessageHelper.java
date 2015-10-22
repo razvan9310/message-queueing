@@ -6,9 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Logger;
 
-/**
- * Created by razvan on 21.10.2015.
- */
 public class MessageHelper {
   private static final Logger LOGGER = Logger.getLogger(MessageHelper.class.getName());
 
