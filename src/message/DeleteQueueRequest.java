@@ -14,6 +14,10 @@ public class DeleteQueueRequest extends Request {
     this.queue = queue;
   }
 
+  public int getQueue() {
+    return queue;
+  }
+
   @Override
   public byte[] getBytes() throws IOException {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();

@@ -14,6 +14,10 @@ public class QueryQueuesRequest extends Request {
     this.receiver = receiver;
   }
 
+  public int getReceiver() {
+    return receiver;
+  }
+
   @Override
   public byte[] getBytes() throws IOException {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();

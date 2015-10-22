@@ -22,6 +22,8 @@ public class QueueHelper {
   private static final int QUEUE_INDEX = 1;
   private static final int RECEIVER_INDEX = 1;
 
+  public static final int DEFAULT_CREATOR = 0;
+
   public static Integer createQueue(Connection connection, int creator) {
     try {
       PreparedStatement createQueueStatement = connection.prepareStatement(CREATE_QUEUE_QUERY);
