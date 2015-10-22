@@ -46,12 +46,14 @@ public class Server {
         }
         Set<SelectionKey> selectedKeys = selector.selectedKeys();
         Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
+
         while (keyIterator.hasNext()) {
           SelectionKey key = keyIterator.next();
           keyIterator.remove();
           if (!key.isValid()) {
             continue;
           }
+
           if (key.isAcceptable()) {
             LOGGER.info("Accepting new connection.");
             ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key.channel();
@@ -59,13 +61,32 @@ public class Server {
             socketChannel.configureBlocking(false);
             socketChannel.register(selector, SelectionKey.OP_READ);
           } else if (key.isReadable()) {
+            if (!(key.attachment() instanceof ConnectionHandler)) {
+              ConnectionHandler connectionHandler =
+                  new ConnectionHandler((SocketChannel) key.channel());
+              key.attach(connectionHandler);
+            }
+            ConnectionHandler connectionHandler = (ConnectionHandler) key.attachment();
+            byte[] requestData = connectionHandler.readFromSocketChannel();
 
+            if (requestData != null) {
+              clientExecutor.execute(new RequestHandler(
+                  connectionHandler, requestData, connectionHandler.getMessageSize()));
+            }
           }
         }
       }
     } catch (IOException e) {
       LOGGER.severe("Server error: " + e.getMessage());
     }
+
+    try {
+      serverSocketChannel.close();
+    } catch (IOException e) {
+      LOGGER.warning("ServerSocketChannel exception on shutdown: " + e.getMessage());
+    }
+    databaseExecutor.shutdown();
+    clientExecutor.shutdown();
   }
 }
 
