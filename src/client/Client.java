@@ -55,7 +55,7 @@ public class Client {
       case Response.TYPE_EMPTY:
         return new EmptyResponse();
       case Response.TYPE_MESSAGE:
-        return new MessageResponse(dataInputStream.readUTF());
+        return new MessageResponse(dataInputStream.readInt(), dataInputStream.readUTF());
       case Response.TYPE_QUEUE_CREATED:
         return new CreateQueueResponse(dataInputStream.readInt());
       case Response.TYPE_QUEUE_DELETED:

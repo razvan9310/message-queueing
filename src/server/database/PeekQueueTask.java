@@ -24,6 +24,6 @@ public class PeekQueueTask extends DatabaseRunnable {
         connection, request.getQueue(), request.getReceiver());
     Server.clientExecutor.execute(new ResponseHandler(
             connectionHandler,
-            message == null ? new EmptyResponse() : new MessageResponse(message.getText())));
+            message == null ? new EmptyResponse() : new MessageResponse(message.getSender(), message.getText())));
   }
 }

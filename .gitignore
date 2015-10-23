@@ -1,6 +1,6 @@
 bin/*
 dist/*
 out/*
-.idea/*
+*/.idea/*
 *.iml
 *~
