@@ -2,12 +2,12 @@
 
 echo ""
 echo "Creating tables"
-cd ~/Programming/Java/ASL && PGPASSWORD=misu93 DATABASE_USER=postgres DATABASE_NAME=asl_db ant create-tables
+cd ~/ASL && PGPORT=9986 DATABASE_USER=damachir DATABASE_NAME=asl_db ant create-tables
 
 echo ""
 echo "Creating stored procedures"
-cd ~/Programming/Java/ASL && PGPASSWORD=misu93 DATABASE_USER=postgres DATABASE_NAME=asl_db ant create-stored-procedures
+cd ~/ASL && PGPORT=9986 DATABASE_USER=damachir DATABASE_NAME=asl_db ant create-stored-procedures
 
 echo ""
 echo "Creating indices"
-cd ~/Programming/Java/ASL && PGPASSWORD=misu93 DATABASE_USER=postgres DATABASE_NAME=asl_db ant create-indices
+cd ~/ASL && PGPORT=9986 DATABASE_USER=damachir DATABASE_NAME=asl_db ant create-indices
