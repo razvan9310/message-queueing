@@ -18,7 +18,7 @@ public class SendMessageTask extends DatabaseRunnable {
 
   @Override
   public void run() {
-    long arrivalTimestamp;
+    double arrivalTimestamp;
     if (request.getReceiver() == SendMessageRequest.NO_RECEIVER) {
       arrivalTimestamp = MessageHelper.sendMessage(
           connection, request.getSender(), request.getQueue(), request.getText());

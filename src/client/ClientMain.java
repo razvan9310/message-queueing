@@ -3,8 +3,6 @@ package client;
 import message.*;
 
 import java.io.IOException;
-import java.math.BigInteger;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -43,26 +41,33 @@ public class ClientMain {
       }
     }
     // Populate list of possible message texts - as many as the clients
-    SecureRandom secureRandom = new SecureRandom();
-    ArrayList<String> texts = new ArrayList<>(totalClients - 1);
-    for (int i = 0; i < totalClients - 1; ++i) {
-      texts.add(new BigInteger(130, secureRandom).toString(32));
-    }
+    String[] texts = {
+        "Such a beautiful day, isn't it?",
+        "I HATE EVERYONE!!",
+        "Patience is a virtue, but nobody said I'm virtuous...",
+        "This sentence is not very meaningful",
+        "I want to learn to play the piano!",
+        "Ces mots sont en francais",
+        "I would also add a sentence in German, but all I can say is 'Keine Deutsch'",
+        "It's not over till it's over (duh).",
+        "I am running out of random gibberish :(",
+        "You are my favourite message passing client, I love you!"};
 
     while (true) {
       // Send a random message to a random receiver
       int receiverIndex = ThreadLocalRandom.current().nextInt(0, totalClients - 1);
       int receiver = receivers.get(receiverIndex);
-      int messageIndex = ThreadLocalRandom.current().nextInt(0, totalClients - 1);
-      String text = texts.get(messageIndex);
+      int messageIndex = ThreadLocalRandom.current().nextInt(0, texts.length);
+      String text = texts[messageIndex];
       // TODO: clientNumber should be a property of Client
       SendMessageResponse sendMessageResponse = (SendMessageResponse) client.sendRequest(
           new SendMessageRequest(clientNumber, receiver, queue, text));
       if (sendMessageResponse.isSentSuccessfully()) {
-        System.out.println("To " + receiver + "[" +  sendMessageResponse.getArrivalTimestamp() + "]: " + text);
+        System.out.println("[" + sendMessageResponse.getArrivalTimestamp() + "]To " + receiver + ": " + text);
       } else {
         System.out.println("Failed to send message.");
       }
+      System.out.println();
 
       // Retrieve the oldest message received
       QueryQueuesResponse queryQueuesResponse = (QueryQueuesResponse) client.sendRequest(
@@ -77,10 +82,12 @@ public class ClientMain {
       }
       MessageResponse oldest = MessageResponse.getOldestMessageResponse(receivedMessages);
       if (oldest != null) {
-        System.out.println(oldest.getSender() + "[" + oldest.getTimestamp() + "]: " + oldest.getText());
+        System.out.println("[" + oldest.getTimestamp() + "]From " + oldest.getSender() + ": " + oldest.getText());
+        System.out.println();
+        client.sendRequest(new PopQueueRequest(clientNumber, oldest.getQueue()));
       }
       try {
-        Thread.sleep(900);
+        Thread.sleep(5000);
       } catch (InterruptedException e) {}
     }
   }

@@ -6,11 +6,13 @@ import java.util.List;
 
 public class MessageResponse extends Response {
   private int sender;
+  private int queue;
   private String text;
-  private long timestamp;
+  private double timestamp;
 
-  public MessageResponse(int sender, String text, long timestamp) {
+  public MessageResponse(int sender, int queue, String text, double timestamp) {
     this.sender = sender;
+    this.queue = queue;
     this.text = text;
     this.timestamp = timestamp;
   }
@@ -19,11 +21,15 @@ public class MessageResponse extends Response {
     return sender;
   }
 
+  public int getQueue() {
+    return queue;
+  }
+
   public String getText() {
     return text;
   }
 
-  public long getTimestamp() {
+  public double getTimestamp() {
     return timestamp;
   }
 
@@ -31,7 +37,9 @@ public class MessageResponse extends Response {
   public void send(DataOutputStream dataOutputStream) throws IOException {
     dataOutputStream.writeByte(Response.TYPE_MESSAGE);
     dataOutputStream.writeInt(sender);
+    dataOutputStream.writeInt(queue);
     dataOutputStream.writeUTF(text);
+    dataOutputStream.writeDouble(timestamp);
     dataOutputStream.flush();
   }
 

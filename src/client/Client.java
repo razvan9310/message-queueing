@@ -49,13 +49,14 @@ public class Client {
     byte responseType = dataInputStream.readByte();
     switch (responseType) {
       case Response.TYPE_SENT_OK:
-        return new SendMessageResponse(dataInputStream.readLong());
+        return new SendMessageResponse(dataInputStream.readDouble());
       case Response.TYPE_SENT_NOT_OK:
-        return new SendMessageResponse(dataInputStream.readLong());
+        return new SendMessageResponse(dataInputStream.readDouble());
       case Response.TYPE_EMPTY:
         return new EmptyResponse();
       case Response.TYPE_MESSAGE:
-        return new MessageResponse(dataInputStream.readInt(), dataInputStream.readUTF(), dataInputStream.readLong());
+        return new MessageResponse(dataInputStream.readInt(), dataInputStream.readInt(), dataInputStream.readUTF(),
+            dataInputStream.readDouble());
       case Response.TYPE_QUEUE_CREATED:
         return new CreateQueueResponse(dataInputStream.readInt());
       case Response.TYPE_QUEUE_DELETED:

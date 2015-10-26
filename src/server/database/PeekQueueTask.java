@@ -20,11 +20,11 @@ public class PeekQueueTask extends DatabaseRunnable {
 
   @Override
   public void run() {
-    Message message = MessageHelper.peekMessage(
-        connection, request.getQueue(), request.getReceiver());
+    Message message = MessageHelper.peekQueue(
+            connection, request.getQueue(), request.getReceiver());
     Server.clientExecutor.execute(new ResponseHandler(
         connectionHandler,
         message == null ? new EmptyResponse() : new MessageResponse(
-            message.getSender(), message.getText(), message.getTimestamp())));
+            message.getSender(), message.getQueue(), message.getText(), message.getTimestamp())));
   }
 }

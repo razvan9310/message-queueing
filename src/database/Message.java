@@ -3,19 +3,16 @@ package database;
 public class Message {
   private int id;
   private int sender;
+  private int queue;
   private String text;
-  private long timestamp;
+  private double timestamp;
 
-  public Message(int id, int sender, String text, long timestamp) {
+  public Message(int id, int sender, int queue, String text, double timestamp) {
     this.id = id;
     this.sender = sender;
+    this.queue = queue;
     this.text = text;
     this.timestamp = timestamp;
-  }
-
-  @Override
-  public String toString() {
-    return String.format("Message from %d: %s", sender, text);
   }
 
   public int getId() {
@@ -26,11 +23,23 @@ public class Message {
     return sender;
   }
 
+  public int getQueue() {
+    return queue;
+  }
+
   public String getText() {
     return text;
   }
 
-  public long getTimestamp() {
+  public double getTimestamp() {
     return timestamp;
+  }
+
+  public void setSender(int sender) {
+    this.sender = sender;
+  }
+
+  public void setQueue(int queue) {
+    this.queue = queue;
   }
 }
