@@ -1,13 +1,15 @@
 CREATE OR REPLACE FUNCTION send_message(
-    _sender INT, _queue_id INT, _message TEXT) RETURNS void AS $$
+    _sender INT, _queue_id INT, _message TEXT) RETURNS TABLE(arrival TIMESTAMP) AS $$
     INSERT INTO message(sender, receiver, queue_id, message)
-    VALUES(_sender, null, _queue_id, _message);
+    VALUES(_sender, null, _queue_id, _message)
+    RETURNING arrival;
 $$ LANGUAGE sql VOLATILE;
 
 CREATE OR REPLACE FUNCTION send_message(
-    _sender INT, _receiver INT, _queue_id INT, _message TEXT) RETURNS void AS $$
+    _sender INT, _receiver INT, _queue_id INT, _message TEXT) RETURNS TABLE(arrival TIMESTAMP) AS $$
     INSERT INTO message(sender, receiver, queue_id, message)
-    VALUES(_sender, _receiver, _queue_id, _message);
+    VALUES(_sender, _receiver, _queue_id, _message)
+    RETURNING arrival;
 $$ LANGUAGE sql VOLATILE;
 
 CREATE OR REPLACE FUNCTION pop_message(_queue_id INT, _receiver INT) RETURNS TABLE(id INT, sender INT, text TEXT) AS $$

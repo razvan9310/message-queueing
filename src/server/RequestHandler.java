@@ -1,13 +1,6 @@
 package server;
 
-import message.DeleteQueueRequest;
-import message.InvalidRequestResponse;
-import message.PeekQueueRequest;
-import message.PeekSenderRequest;
-import message.PopQueueRequest;
-import message.QueryQueuesRequest;
-import message.Request;
-import message.SendMessageRequest;
+import message.*;
 import server.database.CreateQueueTask;
 import server.database.DeleteQueueTask;
 import server.database.PeekQueueTask;
@@ -66,7 +59,8 @@ public class RequestHandler implements Runnable {
           databaseTask = new SendMessageTask((SendMessageRequest) request, connectionHandler);
           break;
         case Request.TYPE_CREATE_QUEUE:
-          databaseTask = new CreateQueueTask(connectionHandler);
+          request = new CreateQueueRequest(dataInputStream.readInt());
+          databaseTask = new CreateQueueTask((CreateQueueRequest) request, connectionHandler);
           break;
         case Request.TYPE_DELETE_QUEUE:
           request = new DeleteQueueRequest(dataInputStream.readInt());

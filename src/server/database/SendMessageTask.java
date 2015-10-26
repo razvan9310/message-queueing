@@ -18,16 +18,16 @@ public class SendMessageTask extends DatabaseRunnable {
 
   @Override
   public void run() {
-    boolean sent;
+    long arrivalTimestamp;
     if (request.getReceiver() == SendMessageRequest.NO_RECEIVER) {
-      sent = MessageHelper.sendMessage(
+      arrivalTimestamp = MessageHelper.sendMessage(
           connection, request.getSender(), request.getQueue(), request.getText());
     } else {
-      sent = MessageHelper.sendMessageWithReceiver(
+      arrivalTimestamp = MessageHelper.sendMessageWithReceiver(
           connection, request.getSender(), request.getReceiver(), request.getQueue(),
           request.getText());
     }
     Server.clientExecutor.execute(new ResponseHandler(
-        connectionHandler, new SendMessageResponse(sent)));
+        connectionHandler, new SendMessageResponse(arrivalTimestamp)));
   }
 }

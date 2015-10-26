@@ -1,23 +1,29 @@
 package message;
 
+import database.MessageHelper;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 
 public class SendMessageResponse extends Response {
-  private boolean sentSuccessfully;
+  private long arrivalTimestamp;
 
-  public SendMessageResponse(boolean sentSuccessfully) {
-    this.sentSuccessfully = sentSuccessfully;
+  public SendMessageResponse(long arrivalTimestamp) {
+    this.arrivalTimestamp = arrivalTimestamp;
   }
 
   public boolean isSentSuccessfully() {
-    return sentSuccessfully;
+    return arrivalTimestamp != MessageHelper.FAILED_MESSAGE_TIMESTAMP;
+  }
+
+  public long getArrivalTimestamp() {
+    return arrivalTimestamp;
   }
 
   @Override
   public void send(DataOutputStream dataOutputStream) throws IOException {
     dataOutputStream.writeByte(
-        sentSuccessfully ? Response.TYPE_SENT_OK : Response.TYPE_SENT_NOT_OK);
+        isSentSuccessfully() ? Response.TYPE_SENT_OK : Response.TYPE_SENT_NOT_OK);
     dataOutputStream.flush();
   }
 }
