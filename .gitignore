@@ -1,6 +1,7 @@
 bin/*
 dist/*
 out/*
+src/out/*
 */.idea/*
 *.iml
 *~
