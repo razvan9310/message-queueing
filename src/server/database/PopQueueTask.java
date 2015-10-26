@@ -23,7 +23,8 @@ public class PopQueueTask extends DatabaseRunnable {
     Message message = MessageHelper.popMessage(
         connection, request.getQueue(), request.getReceiver());
     Server.clientExecutor.execute(new ResponseHandler(
-            connectionHandler,
-            message == null ? new EmptyResponse() : new MessageResponse(message.getSender(), message.getText())));
+        connectionHandler,
+        message == null ? new EmptyResponse() : new MessageResponse(
+            message.getSender(), message.getText(), message.getTimestamp())));
   }
 }

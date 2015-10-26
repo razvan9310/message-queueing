@@ -16,17 +16,25 @@ public class MessageHelper {
   private static final String SEND_QUERY = "SELECT * FROM send_message(?, ?, ?)";
   private static final String SEND_WITH_RECEIVER_QUERY = "SELECT * FROM send_message(?, ?, ?, ?)";
 
-  private enum MessageParameters { ID, SENDER, TEXT }
+  public static final long FAILED_MESSAGE_TIMESTAMP = -1;
+
+  private enum MessageParameters { ID, SENDER, TEXT, TIMESTAMP }
   private enum PeekFromSenderParameters { SENDER, RECEIVER }
   private enum PeekParameters { QUEUE, RECEIVER }
   private enum PopParameters { QUEUE, RECEIVER }
+  private enum SendMessageParameters { TIMESTAMP }
   private enum SendParameters { SENDER, QUEUE, TEXT }
   private enum SendWithReceiverParameters { SENDER, RECEIVER, QUEUE, TEXT }
 
   private static Message getMessageFromQueryResults(ResultSet results) throws SQLException {
     return new Message(results.getInt(MessageParameters.ID.ordinal() + 1),
         results.getInt(MessageParameters.SENDER.ordinal() + 1),
-        results.getString(MessageParameters.TEXT.ordinal() + 1));
+        results.getString(MessageParameters.TEXT.ordinal() + 1),
+        results.getLong(MessageParameters.TIMESTAMP.ordinal() + 1));
+  }
+
+  private static long getTimestampFromSendMessageResults(ResultSet results) throws SQLException {
+    return results.getLong(SendMessageParameters.TIMESTAMP.ordinal() + 1);
   }
 
   public static Message peekMessage(Connection connection, int queue, int receiver) {
@@ -74,21 +82,21 @@ public class MessageHelper {
     return null;
   }
 
-  public static boolean sendMessage(Connection connection, int sender, int queue, String text) {
+  public static long sendMessage(Connection connection, int sender, int queue, String text) {
     try {
       PreparedStatement sendStatement = connection.prepareStatement(SEND_QUERY);
       sendStatement.setInt(SendParameters.SENDER.ordinal() + 1, sender);
       sendStatement.setInt(SendParameters.QUEUE.ordinal() + 1, queue);
       sendStatement.setString(SendParameters.TEXT.ordinal() + 1, text);
-      sendStatement.execute();
-      return true;
+      ResultSet results = sendStatement.executeQuery();
+      return getTimestampFromSendMessageResults(results);
     } catch (SQLException e) {
       LOGGER.warning("Failed to send message: " + e.getMessage());
-      return false;
+      return FAILED_MESSAGE_TIMESTAMP;
     }
   }
 
-  public static boolean sendMessageWithReceiver(Connection connection, int sender, int receiver,
+  public static long sendMessageWithReceiver(Connection connection, int sender, int receiver,
       int queue, String text) {
     try {
       PreparedStatement sendStatement = connection.prepareStatement(SEND_WITH_RECEIVER_QUERY);
@@ -96,11 +104,11 @@ public class MessageHelper {
       sendStatement.setInt(SendWithReceiverParameters.RECEIVER.ordinal() + 1, receiver);
       sendStatement.setInt(SendWithReceiverParameters.QUEUE.ordinal() + 1, queue);
       sendStatement.setString(SendWithReceiverParameters.TEXT.ordinal() + 1, text);
-      sendStatement.execute();
-      return true;
+      ResultSet results = sendStatement.executeQuery();
+      return getTimestampFromSendMessageResults(results);
     } catch (SQLException e) {
       LOGGER.warning("Failed to send message with receiver: " + e.getMessage());
-      return false;
+      return FAILED_MESSAGE_TIMESTAMP;
     }
   }
 }
