@@ -2,14 +2,45 @@ package client;
 
 import message.*;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 public class ClientMain {
   private static final Logger LOGGER = Logger.getLogger(ClientMain.class.getName());
+  private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
+  private static class LoggerRunnable implements Runnable {
+    private BufferedWriter bufferedWriter;
+
+    public LoggerRunnable(BufferedWriter bufferedWriter) {
+      this.bufferedWriter = bufferedWriter;
+    }
+
+    @Override
+    public void run() {
+      while (true) {
+        try {
+          bufferedWriter.flush();
+        } catch (IOException e) {
+
+        }
+        try {
+          Thread.sleep(1000);
+        } catch (InterruptedException e) {
+
+        }
+      }
+    }
+  }
 
   /**
    *
@@ -28,10 +59,16 @@ public class ClientMain {
       System.err.println("Arguments are: server_address server_port client_number total_number_of_clients");
       System.exit(0);
     }
+    FileWriter fileWriter = new FileWriter(new File("requests" + clientNumber + ".log"), true);
+    BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+    scheduler.scheduleAtFixedRate(new LoggerRunnable(bufferedWriter), 1, 1, TimeUnit.SECONDS);
 
     Client client = new Client(args[0], port);
     CreateQueueRequest createQueueRequest = new CreateQueueRequest(clientNumber);
+    long createQueueRequestTime = System.nanoTime();
     CreateQueueResponse createQueueResponse = (CreateQueueResponse) client.sendRequest(createQueueRequest);
+    long createQueueResponseTime = System.nanoTime();
+    bufferedWriter.write(String.valueOf(createQueueRequestTime) + " " + String.valueOf(createQueueResponseTime) + "\n");
     int queue = createQueueResponse.getQueue();
     // Populate list of receivers
     ArrayList<Integer> receivers = new ArrayList<>(totalClients - 1);
@@ -60,8 +97,13 @@ public class ClientMain {
       int messageIndex = ThreadLocalRandom.current().nextInt(0, texts.length);
       String text = texts[messageIndex];
       // TODO: clientNumber should be a property of Client
+      long sendMessageRequestTime = System.nanoTime();
       SendMessageResponse sendMessageResponse = (SendMessageResponse) client.sendRequest(
           new SendMessageRequest(clientNumber, receiver, queue, text));
+      long sendMessageResponseTime = System.nanoTime();
+      bufferedWriter.write(String.valueOf(sendMessageRequestTime) + " " + String.valueOf(sendMessageResponseTime)
+          + "\n");
+
       if (sendMessageResponse.isSentSuccessfully()) {
         System.out.println("[" + sendMessageResponse.getArrivalTimestamp() + "]To " + receiver + ": " + text);
       } else {
@@ -70,12 +112,21 @@ public class ClientMain {
       System.out.println();
 
       // Retrieve the oldest message received
+      long queryQueuesRequestTime = System.nanoTime();
       QueryQueuesResponse queryQueuesResponse = (QueryQueuesResponse) client.sendRequest(
           new QueryQueuesRequest(clientNumber));
+      long queryQueuesResponseTime = System.nanoTime();
+      bufferedWriter.write(String.valueOf(queryQueuesRequestTime) + " " + String.valueOf(queryQueuesResponseTime)
+          + "\n");
+
       List<Integer> receivedQueues = queryQueuesResponse.getQueues();
       ArrayList<MessageResponse> receivedMessages = new ArrayList<>();
       for (Integer receivedQueue : receivedQueues) {
+        long peekQueueRequestTime = System.nanoTime();
         Response response = client.sendRequest(new PeekQueueRequest(clientNumber, receivedQueue));
+        long peekQueueResponseTime = System.nanoTime();
+        bufferedWriter.write(String.valueOf(peekQueueRequestTime) + " " + String.valueOf(peekQueueResponseTime) + "\n");
+
         if (response instanceof MessageResponse) {
           receivedMessages.add((MessageResponse) response);
         }
@@ -84,7 +135,10 @@ public class ClientMain {
       if (oldest != null) {
         System.out.println("[" + oldest.getTimestamp() + "]From " + oldest.getSender() + ": " + oldest.getText());
         System.out.println();
+        long popQueueRequestTime = System.nanoTime();
         client.sendRequest(new PopQueueRequest(clientNumber, oldest.getQueue()));
+        long popQueueResponseTime = System.nanoTime();
+        bufferedWriter.write(String.valueOf(popQueueRequestTime) + " " + String.valueOf(popQueueResponseTime) + "\n");
       }
       try {
         Thread.sleep(5000);
