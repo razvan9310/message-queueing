@@ -1,0 +1,5 @@
+set term png
+set output "response-time.png"
+set xlabel "Time"
+set ylabel "Response time"
+plot "log.dat" using 1:2 with lines title "Response time over time"
