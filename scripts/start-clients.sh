@@ -20,7 +20,7 @@ while (($i < $n)); do
 done
 
 echo "Running a total of $n clients for a total of $t seconds."
-echo "Log data will be available at ~/ASL/logs/"
+echo "Log data will be available at $logs_dest"
 i=0
 while (($i < $t)); do
 	echo -ne "$(($t-$i)) seconds remaining... \\r"
