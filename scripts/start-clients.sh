@@ -7,7 +7,7 @@ logs_dest=$2
 n=$((10#$3))
 t=$((10#$4))
 i=0
-rm -rf ~/ASL/logs && mkdir -p ~/ASL/logs
+rm -rf $logs_dest && mkdir -p $logs_dest
 while (($i < $n)); do
 	if (($i % 2 == 0)); then
 		cd $logs_dest
