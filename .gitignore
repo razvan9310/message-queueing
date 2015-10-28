@@ -2,6 +2,7 @@ bin/*
 dist/*
 out/*
 src/out/*
+logs/*
 */.idea/*
 *.iml
 *~

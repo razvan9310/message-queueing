@@ -9,7 +9,7 @@ while True:
 		break
 	line = line.split(' ')
 	n1, n2 = int(line[0]), int(line[1])
-	delta = (n2 - n1) / 10**3
+	delta = 1.0 * n2 / 10**6
 	sn1 = n1 / 10**9
 	if values.get(sn1) is not None:	
 		values[sn1].append(delta)

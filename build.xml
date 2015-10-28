@@ -21,42 +21,42 @@
 	<target name="create-tables">
 	  	<exec executable="/bin/bash">
 	  		<arg value="-c" />
-	  		<arg value="cat scripts/create_tables.sql | ~/postgres/bin/psql -h ~/pgsql_socket -U ${env.DATABASE_USER} ${env.DATABASE_NAME}" />
+	  		<arg value="cat scripts/create_tables.sql | ${env.PSQL_PATH} -h ${env.PGSQL_SOCKET} -U ${env.DATABASE_USER} ${env.DATABASE_NAME}" />
 	  	</exec>
 	</target>
 
 	<target name="drop-tables">
 	  	<exec executable="/bin/bash">
 	  		<arg value="-c" />
-	  		<arg value="cat scripts/drop_tables.sql | ~/postgres/bin/psql -h ~/pgsql_socket -U ${env.DATABASE_USER} ${env.DATABASE_NAME}" />
+	  		<arg value="cat scripts/drop_tables.sql | ${env.PSQL_PATH} -h ${env.PGSQL_SOCKET} -U ${env.DATABASE_USER} ${env.DATABASE_NAME}" />
 	  	</exec>
 	</target>
 
 	<target name="create-stored-procedures">
 	  	<exec executable="/bin/bash">
 	  		<arg value="-c" />
-	  		<arg value="cat scripts/create_stored_procedures.sql | ~/postgres/bin/psql -h ~/pgsql_socket -U ${env.DATABASE_USER} ${env.DATABASE_NAME}" />
+	  		<arg value="cat scripts/create_stored_procedures.sql | ${env.PSQL_PATH} -h ${env.PGSQL_SOCKET} -U ${env.DATABASE_USER} ${env.DATABASE_NAME}" />
 	 	</exec>
 	</target>
 	
 	<target name="drop-stored-procedures">
 	 	 <exec executable="/bin/bash">
 	  		<arg value="-c" />
-	  		<arg value="cat scripts/drop_stored_procedures.sql | ~/postgres/bin/psql -h ~/pgsql_socket -U ${env.DATABASE_USER} ${env.DATABASE_NAME}" />
+	  		<arg value="cat scripts/drop_stored_procedures.sql | ${env.PSQL_PATH} -h ${env.PGSQL_SOCKET} -U ${env.DATABASE_USER} ${env.DATABASE_NAME}" />
 	 	</exec>
 	</target>
 
 	<target name="create-indices">
 		<exec executable="/bin/bash">
 		  	<arg value="-c" />
-		  	<arg value="cat scripts/create_indices.sql | ~/postgres/bin/psql -h ~/pgsql_socket -U ${env.DATABASE_USER} ${env.DATABASE_NAME}" />
+		  	<arg value="cat scripts/create_indices.sql | ${env.PSQL_PATH} -h ${env.PGSQL_SOCKET} -U ${env.DATABASE_USER} ${env.DATABASE_NAME}" />
 		</exec>
 	</target>
 
 	<target name="drop-indices">
 	 	 <exec executable="/bin/bash">
 	  		<arg value="-c" />
-	  		<arg value="cat scripts/drop_indices.sql | ~/postgres/bin/psql -h ~/pgsql_socket -U ${env.DATABASE_USER} ${env.DATABASE_NAME}" />
+	  		<arg value="cat scripts/drop_indices.sql | ${env.PSQL_PATH} -h ${env.PGSQL_SOCKET} -U ${env.DATABASE_USER} ${env.DATABASE_NAME}" />
 	 	</exec>
 	</target>
 	

@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if (($# != 4)); then
+	echo "Arguments: logs_dir, num_clients, path_to_py_script, path_to_gnuplot_script"
+	exit 1	
+fi
+
 logs_dir=$1
 n=$((10#$2))
 py_script=$3
