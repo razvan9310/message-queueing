@@ -54,12 +54,13 @@ public class Server {
         FileWriter fileWriter = new FileWriter(new File("messages-count" + serverNumber + ".log"), true);
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
         LoggerConfig config = new LoggerConfig(1, 1, TimeUnit.SECONDS);
-        Callable<Integer> countMessagesTask = new Callable<Integer>() {
+        final long startTime = System.nanoTime();
+        Callable<String> countMessagesTask = new Callable<String>() {
           @Override
-          public Integer call() throws Exception {
+          public String call() throws Exception {
             CountMessagesTask databaseTask = new CountMessagesTask();
             databaseTask.run();
-            return databaseTask.getMessagesCount();
+            return String.valueOf(System.nanoTime() - startTime) + " " + databaseTask.getMessagesCount();
           }
         };
         periodicLogger = new PeriodicLogger(new PeriodicLoggerConfig(config, countMessagesTask, 1, 1), bufferedWriter);

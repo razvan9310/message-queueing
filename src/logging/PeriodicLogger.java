@@ -26,15 +26,17 @@ public class PeriodicLogger extends Logger {
       public void run() {
         try {
           log(String.valueOf(periodicLoggerConfig.getTask().call()));
-          started = true;
         } catch (Exception e) {
           // TODO
         }
       }
     },
-        periodicLoggerConfig.getInitialFlushTime(),
-        periodicLoggerConfig.getFlushTimePeriod(),
+        periodicLoggerConfig.getInitialLogTime(),
+        periodicLoggerConfig.getLogTimePeriod(),
         periodicLoggerConfig.getTimeUnit());
+
+    super.start();
+    started = true;
   }
 
   public boolean isStarted() {
