@@ -33,13 +33,15 @@ public class Server {
   private ServerSocketChannel serverSocketChannel;
   private int serverNumber;
   private boolean logThroughput;
+  private boolean logDatabaseResponseTime;
   private boolean logMessageCount;
 
   public Server(ServerSocketChannel serverSocketChannel, int serverNumber, boolean logThroughput,
-      boolean logMessageCount) {
+      boolean logDatabaseResponseTime, boolean logMessageCount) {
     this.serverSocketChannel = serverSocketChannel;
     this.serverNumber = serverNumber;
     this.logThroughput = logThroughput;
+    this.logDatabaseResponseTime = logDatabaseResponseTime;
     this.logMessageCount = logMessageCount;
 
     clientExecutor = Executors.newFixedThreadPool(10);
@@ -65,21 +67,30 @@ public class Server {
       serverSocketChannel.configureBlocking(false);
       serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
 
-      PeriodicTaskLogger periodicTaskLogger = null;
+      PeriodicTaskLogger databaseMessageCountLogger = null;
       if (logMessageCount) {
         FileWriter fileWriter = new FileWriter(new File("messages-count" + serverNumber + ".log"), true);
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
         LoggerConfig config = new LoggerConfig(1, 1, TimeUnit.SECONDS);
-        final long startTime = System.nanoTime();
         Callable<String> countMessagesTask = new Callable<String>() {
           @Override
           public String call() throws Exception {
             CountMessagesTask databaseTask = new CountMessagesTask();
             databaseExecutor.execute(new CountMessagesTask());
-            return String.valueOf(System.nanoTime() - startTime) + " " + databaseTask.getMessagesCount();
+            return String.valueOf(System.nanoTime() - ServerMain.startupTime) + " " + databaseTask.getMessagesCount();
           }
         };
-        periodicTaskLogger = new PeriodicTaskLogger(new PeriodicTaskLoggerConfig(config, countMessagesTask, 1, 1), bufferedWriter);
+        databaseMessageCountLogger = new PeriodicTaskLogger(
+            new PeriodicTaskLoggerConfig(config, countMessagesTask, 1, 1), bufferedWriter);
+      }
+
+      logging.Logger databaseResponseLogger = null;
+      if (logDatabaseResponseTime) {
+        FileWriter fileWriter = new FileWriter(new File("db-response-time" + serverNumber + ".log"), true);
+        BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+        LoggerConfig config = new LoggerConfig(1, 1, TimeUnit.SECONDS);
+        databaseResponseLogger = new logging.Logger(config, bufferedWriter);
+        databaseResponseLogger.start();
       }
 
       while (true) {
@@ -113,10 +124,10 @@ public class Server {
 
             if (requestData != null) {
               clientExecutor.execute(new RequestHandler(
-                  connectionHandler, requestData, connectionHandler.getMessageSize()));
+                  connectionHandler, requestData, connectionHandler.getMessageSize(), databaseResponseLogger));
             }
-            if (periodicTaskLogger != null && !periodicTaskLogger.isStarted()) {
-              periodicTaskLogger.start();
+            if (databaseMessageCountLogger != null && !databaseMessageCountLogger.isStarted()) {
+              databaseMessageCountLogger.start();
             }
           }
         }

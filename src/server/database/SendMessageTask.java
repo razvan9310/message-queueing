@@ -1,6 +1,8 @@
 package server.database;
 
 import database.MessageHelper;
+import logging.Logger;
+import message.Request;
 import message.SendMessageRequest;
 import message.SendMessageResponse;
 import server.ConnectionHandler;
@@ -8,24 +10,22 @@ import server.ResponseHandler;
 import server.Server;
 
 public class SendMessageTask extends DatabaseRunnable {
-  private SendMessageRequest request;
-  private ConnectionHandler connectionHandler;
-
-  public SendMessageTask(SendMessageRequest request, ConnectionHandler connectionHandler) {
-    this.request = request;
-    this.connectionHandler = connectionHandler;
+  public SendMessageTask(Request request, ConnectionHandler connectionHandler, Logger databaseResponseLogger) {
+    super(request, connectionHandler, databaseResponseLogger);
   }
 
   @Override
   public void run() {
     double arrivalTimestamp;
-    if (request.getReceiver() == SendMessageRequest.NO_RECEIVER) {
+    SendMessageRequest sendMessageRequest = (SendMessageRequest) request;
+    if (sendMessageRequest.getReceiver() == SendMessageRequest.NO_RECEIVER) {
       arrivalTimestamp = MessageHelper.sendMessage(
-          connection, request.getSender(), request.getQueue(), request.getText());
+          connection, sendMessageRequest.getSender(), sendMessageRequest.getQueue(), sendMessageRequest.getText(),
+          databaseResponseLogger);
     } else {
       arrivalTimestamp = MessageHelper.sendMessageWithReceiver(
-          connection, request.getSender(), request.getReceiver(), request.getQueue(),
-          request.getText());
+          connection, sendMessageRequest.getSender(), sendMessageRequest.getReceiver(), sendMessageRequest.getQueue(),
+          sendMessageRequest.getText(), databaseResponseLogger);
     }
     Server.clientExecutor.execute(new ResponseHandler(
         connectionHandler, new SendMessageResponse(arrivalTimestamp)));

@@ -1,5 +1,7 @@
 package database;
 
+import server.ServerMain;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -22,11 +24,16 @@ public class QueueHelper {
   public static final int DEFAULT_CREATOR = 0;
   public static final int NO_QUEUE = -1;
 
-  public static Integer createQueue(Connection connection, int creator) {
+  public static Integer createQueue(Connection connection, int creator, logging.Logger logger) {
     try {
       PreparedStatement createQueueStatement = connection.prepareStatement(CREATE_QUEUE_QUERY);
       createQueueStatement.setInt(CREATOR_INDEX, creator);
+      long beforeQuery = System.nanoTime();
       ResultSet results = createQueueStatement.executeQuery();
+      long elapsed = System.nanoTime() - beforeQuery;
+      if (logger != null) {
+        logger.log(String.valueOf(beforeQuery - ServerMain.startupTime) + " " + String.valueOf(elapsed) + "\n");
+      }
       if (results.next()) {
         return results.getInt(QUEUE_INDEX);
       } else {
@@ -39,11 +46,16 @@ public class QueueHelper {
     return null;
   }
 
-  public static boolean deleteQueue(Connection connection, int queue) {
+  public static boolean deleteQueue(Connection connection, int queue, logging.Logger logger) {
     try {
       PreparedStatement deleteStatement = connection.prepareStatement(DELETE_QUEUE_QUERY);
       deleteStatement.setInt(QUEUE_INDEX, queue);
+      long beforeQuery = System.nanoTime();
       deleteStatement.executeQuery();
+      long elapsed = System.nanoTime() - beforeQuery;
+      if (logger != null) {
+        logger.log(String.valueOf(beforeQuery - ServerMain.startupTime) + " " + String.valueOf(elapsed) + "\n");
+      }
       return true;
     } catch (SQLException e) {
       LOGGER.severe("Failed to delete queue: " + e.getMessage());
@@ -51,13 +63,18 @@ public class QueueHelper {
     return false;
   }
 
-  public static ArrayList<Integer> queryQueuesForReceiver(Connection connection, int receiver) {
+  public static ArrayList<Integer> queryQueuesForReceiver(Connection connection, int receiver, logging.Logger logger) {
     ArrayList<Integer> queues = new ArrayList<Integer>();
     try {
       PreparedStatement queryQueuesStatement = connection.prepareStatement(
           QUEUES_FOR_RECEIVER_QUERY);
       queryQueuesStatement.setInt(RECEIVER_INDEX, receiver);
+      long beforeQuery = System.nanoTime();
       ResultSet results = queryQueuesStatement.executeQuery();
+      long elapsed = System.nanoTime() - beforeQuery;
+      if (logger != null) {
+        logger.log(String.valueOf(beforeQuery - ServerMain.startupTime) + " " + String.valueOf(elapsed) + "\n");
+      }
       while (results.next()) {
         queues.add(results.getInt(QUEUE_INDEX));
       }

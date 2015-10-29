@@ -22,11 +22,14 @@ public class RequestHandler implements Runnable {
 
   private ConnectionHandler connectionHandler;
   private DataInputStream dataInputStream;
+  private logging.Logger databaseResponseLogger;
 
-  public RequestHandler(ConnectionHandler connectionHandler, byte[] requestData, int messageSize) {
+  public RequestHandler(ConnectionHandler connectionHandler, byte[] requestData, int messageSize,
+      logging.Logger databaseResponseLogger) {
     this.connectionHandler = connectionHandler;
     dataInputStream = new DataInputStream(new ByteArrayInputStream(
         requestData, Types.INTEGER_BYTES, messageSize));
+    this.databaseResponseLogger = databaseResponseLogger;
   }
 
   @Override
@@ -38,37 +41,37 @@ public class RequestHandler implements Runnable {
       switch (requestType) {
         case Request.TYPE_PEEK_QUEUE:
           request = new PeekQueueRequest(dataInputStream.readInt(), dataInputStream.readInt());
-          databaseTask = new PeekQueueTask((PeekQueueRequest) request, connectionHandler);
+          databaseTask = new PeekQueueTask(request, connectionHandler, databaseResponseLogger);
           break;
         case Request.TYPE_PEEK_SENDER:
           request = new PeekSenderRequest(dataInputStream.readInt(), dataInputStream.readInt());
-          databaseTask = new PeekSenderTask((PeekSenderRequest) request, connectionHandler);
+          databaseTask = new PeekSenderTask(request, connectionHandler, databaseResponseLogger);
           break;
         case Request.TYPE_POP:
           request = new PopQueueRequest(dataInputStream.readInt(), dataInputStream.readInt());
-          databaseTask = new PopQueueTask((PopQueueRequest) request, connectionHandler);
+          databaseTask = new PopQueueTask(request, connectionHandler, databaseResponseLogger);
           break;
         case Request.TYPE_SEND_NO_RECEIVER:
           request = new SendMessageRequest(dataInputStream.readInt(),
               SendMessageRequest.NO_RECEIVER, dataInputStream.readInt(), dataInputStream.readUTF());
-          databaseTask = new SendMessageTask((SendMessageRequest) request, connectionHandler);
+          databaseTask = new SendMessageTask(request, connectionHandler, databaseResponseLogger);
           break;
         case Request.TYPE_SEND_TO_RECEIVER:
           request = new SendMessageRequest(dataInputStream.readInt(), dataInputStream.readInt(),
               dataInputStream.readInt(), dataInputStream.readUTF());
-          databaseTask = new SendMessageTask((SendMessageRequest) request, connectionHandler);
+          databaseTask = new SendMessageTask(request, connectionHandler, databaseResponseLogger);
           break;
         case Request.TYPE_CREATE_QUEUE:
           request = new CreateQueueRequest(dataInputStream.readInt());
-          databaseTask = new CreateQueueTask((CreateQueueRequest) request, connectionHandler);
+          databaseTask = new CreateQueueTask(request, connectionHandler, databaseResponseLogger);
           break;
         case Request.TYPE_DELETE_QUEUE:
           request = new DeleteQueueRequest(dataInputStream.readInt());
-          databaseTask = new DeleteQueueTask((DeleteQueueRequest) request, connectionHandler);
+          databaseTask = new DeleteQueueTask(request, connectionHandler, databaseResponseLogger);
           break;
         case Request.TYPE_QUERY_QUEUES:
           request = new QueryQueuesRequest(dataInputStream.readInt());
-          databaseTask = new QueryQueuesTask((QueryQueuesRequest) request, connectionHandler);
+          databaseTask = new QueryQueuesTask(request, connectionHandler, databaseResponseLogger);
           break;
         default:
           LOGGER.severe("Received unknown request type: " + requestType);

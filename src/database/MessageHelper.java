@@ -1,11 +1,12 @@
 package database;
 
+import server.ServerMain;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.SimpleDateFormat;
 import java.util.logging.Logger;
 
 public class MessageHelper {
@@ -46,12 +47,17 @@ public class MessageHelper {
     return results.getDouble(SendMessageParameters.TIMESTAMP.ordinal() + 1);
   }
 
-  public static Message peekQueue(Connection connection, int queue, int receiver) {
+  public static Message peekQueue(Connection connection, int queue, int receiver, logging.Logger logger) {
     try {
       PreparedStatement peekStatement = connection.prepareStatement(PEEK_QUERY);
       peekStatement.setInt(PeekParameters.QUEUE.ordinal() + 1, queue);
       peekStatement.setInt(PeekParameters.RECEIVER.ordinal() + 1, receiver);
+      long beforeQuery = System.nanoTime();
       ResultSet results = peekStatement.executeQuery();
+      long elapsed = System.nanoTime() - beforeQuery;
+      if (logger != null) {
+        logger.log(String.valueOf(beforeQuery - ServerMain.startupTime) + " " + String.valueOf(elapsed) + "\n");
+      }
       if (results.next()) {
         Message message = getMessageFromQueryResults(results, true);
         message.setQueue(queue);
@@ -63,12 +69,17 @@ public class MessageHelper {
     return null;
   }
 
-  public static Message peekMessageFromSender(Connection connection, int sender, int receiver) {
+  public static Message peekMessageFromSender(Connection connection, int sender, int receiver, logging.Logger logger) {
     try {
       PreparedStatement peekStatement = connection.prepareStatement(PEEK_FROM_SENDER_QUERY);
       peekStatement.setInt(PeekFromSenderParameters.SENDER.ordinal() + 1, sender);
       peekStatement.setInt(PeekFromSenderParameters.RECEIVER.ordinal() + 1, receiver);
+      long beforeQuery = System.nanoTime();
       ResultSet results = peekStatement.executeQuery();
+      long elapsed = System.nanoTime() - beforeQuery;
+      if (logger != null) {
+        logger.log(String.valueOf(beforeQuery - ServerMain.startupTime) + " " + String.valueOf(elapsed) + "\n");
+      }
       if (results.next()) {
         Message message = getMessageFromQueryResults(results, false);
         message.setSender(sender);
@@ -80,12 +91,17 @@ public class MessageHelper {
     return null;
   }
 
-  public static Message popMessage(Connection connection, int queue, int receiver) {
+  public static Message popMessage(Connection connection, int queue, int receiver, logging.Logger logger) {
     try {
       PreparedStatement popStatement = connection.prepareStatement(POP_QUERY);
       popStatement.setInt(PopParameters.QUEUE.ordinal() + 1, queue);
       popStatement.setInt(PopParameters.RECEIVER.ordinal() + 1, receiver);
+      long beforeQuery = System.nanoTime();
       ResultSet results = popStatement.executeQuery();
+      long elapsed = System.nanoTime() - beforeQuery;
+      if (logger != null) {
+        logger.log(String.valueOf(beforeQuery - ServerMain.startupTime) + " " + String.valueOf(elapsed) + "\n");
+      }
       if (results.next()) {
         Message message = getMessageFromQueryResults(results, true);
         message.setQueue(queue);
@@ -97,13 +113,18 @@ public class MessageHelper {
     return null;
   }
 
-  public static double sendMessage(Connection connection, int sender, int queue, String text) {
+  public static double sendMessage(Connection connection, int sender, int queue, String text, logging.Logger logger) {
     try {
       PreparedStatement sendStatement = connection.prepareStatement(SEND_QUERY);
       sendStatement.setInt(SendParameters.SENDER.ordinal() + 1, sender);
       sendStatement.setInt(SendParameters.QUEUE.ordinal() + 1, queue);
       sendStatement.setString(SendParameters.TEXT.ordinal() + 1, text);
+      long beforeQuery = System.nanoTime();
       ResultSet results = sendStatement.executeQuery();
+      long elapsed = System.nanoTime() - beforeQuery;
+      if (logger != null) {
+        logger.log(String.valueOf(beforeQuery - ServerMain.startupTime) + " " + String.valueOf(elapsed) + "\n");
+      }
       if (results.next()) {
         return getTimestampFromSendMessageResults(results);
       }
@@ -113,15 +134,20 @@ public class MessageHelper {
     return FAILED_MESSAGE_TIMESTAMP;
   }
 
-  public static double sendMessageWithReceiver(Connection connection, int sender, int receiver,
-      int queue, String text) {
+  public static double sendMessageWithReceiver(Connection connection, int sender, int receiver, int queue,
+      String text, logging.Logger logger) {
     try {
       PreparedStatement sendStatement = connection.prepareStatement(SEND_WITH_RECEIVER_QUERY);
       sendStatement.setInt(SendWithReceiverParameters.SENDER.ordinal() + 1, sender);
       sendStatement.setInt(SendWithReceiverParameters.RECEIVER.ordinal() + 1, receiver);
       sendStatement.setInt(SendWithReceiverParameters.QUEUE.ordinal() + 1, queue);
       sendStatement.setString(SendWithReceiverParameters.TEXT.ordinal() + 1, text);
+      long beforeQuery = System.nanoTime();
       ResultSet results = sendStatement.executeQuery();
+      long elapsed = System.nanoTime() - beforeQuery;
+      if (logger != null) {
+        logger.log(String.valueOf(beforeQuery - ServerMain.startupTime) + " " + String.valueOf(elapsed) + "\n");
+      }
       if (results.next()) {
         return getTimestampFromSendMessageResults(results);
       }

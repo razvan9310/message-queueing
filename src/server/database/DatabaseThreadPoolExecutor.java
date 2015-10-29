@@ -32,7 +32,7 @@ public class DatabaseThreadPoolExecutor extends ThreadPoolExecutor {
   protected void afterExecute(Runnable r, Throwable t) {
     super.afterExecute(r, t);
     if (throughputLogger != null) {
-      throughputLogger.log(String.valueOf(System.nanoTime() - startupTime));
+      throughputLogger.log(String.valueOf(System.nanoTime() - startupTime) + "\n");
     }
   }
 }
