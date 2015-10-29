@@ -1,8 +1,8 @@
 package server;
 
-import logging.PeriodicLogger;
+import logging.PeriodicTaskLogger;
 import logging.config.LoggerConfig;
-import logging.config.PeriodicLoggerConfig;
+import logging.config.PeriodicTaskLoggerConfig;
 import server.database.CountMessagesTask;
 import server.database.DatabaseThreadPoolExecutor;
 
@@ -32,15 +32,31 @@ public class Server {
 
   private ServerSocketChannel serverSocketChannel;
   private int serverNumber;
+  private boolean logThroughput;
   private boolean logMessageCount;
 
-  public Server(ServerSocketChannel serverSocketChannel, int serverNumber, boolean logMessageCount) {
+  public Server(ServerSocketChannel serverSocketChannel, int serverNumber, boolean logThroughput,
+      boolean logMessageCount) {
     this.serverSocketChannel = serverSocketChannel;
     this.serverNumber = serverNumber;
+    this.logThroughput = logThroughput;
     this.logMessageCount = logMessageCount;
+
     clientExecutor = Executors.newFixedThreadPool(10);
+
+    logging.Logger throughputLogger = null;
+    if (logThroughput) {
+      try {
+        FileWriter fileWriter = new FileWriter(new File("throughput" + serverNumber + ".log"), true);
+        BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+        LoggerConfig config = new LoggerConfig(1, 1, TimeUnit.SECONDS);
+        throughputLogger = new logging.Logger(config, bufferedWriter);
+      } catch (IOException e) {
+        LOGGER.warning("Failed to open throughput log: " + e.getMessage());
+      }
+    }
     databaseExecutor = new DatabaseThreadPoolExecutor(10, 10, 0, TimeUnit.NANOSECONDS,
-        new LinkedBlockingQueue<Runnable>());
+        new LinkedBlockingQueue<Runnable>(), throughputLogger);
   }
 
   public void start() {
@@ -49,7 +65,7 @@ public class Server {
       serverSocketChannel.configureBlocking(false);
       serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
 
-      PeriodicLogger periodicLogger = null;
+      PeriodicTaskLogger periodicTaskLogger = null;
       if (logMessageCount) {
         FileWriter fileWriter = new FileWriter(new File("messages-count" + serverNumber + ".log"), true);
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
@@ -63,7 +79,7 @@ public class Server {
             return String.valueOf(System.nanoTime() - startTime) + " " + databaseTask.getMessagesCount();
           }
         };
-        periodicLogger = new PeriodicLogger(new PeriodicLoggerConfig(config, countMessagesTask, 1, 1), bufferedWriter);
+        periodicTaskLogger = new PeriodicTaskLogger(new PeriodicTaskLoggerConfig(config, countMessagesTask, 1, 1), bufferedWriter);
       }
 
       while (true) {
@@ -99,8 +115,8 @@ public class Server {
               clientExecutor.execute(new RequestHandler(
                   connectionHandler, requestData, connectionHandler.getMessageSize()));
             }
-            if (periodicLogger != null && !periodicLogger.isStarted()) {
-              periodicLogger.start();
+            if (periodicTaskLogger != null && !periodicTaskLogger.isStarted()) {
+              periodicTaskLogger.start();
             }
           }
         }

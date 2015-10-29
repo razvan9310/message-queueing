@@ -110,11 +110,11 @@ public class ClientMain {
           responseTimeLogger.log(String.valueOf(peekQueueRequestTime - startTime) + " "
               + String.valueOf(peekQueueElapsedTime) + "\n");
         }
-
         if (response instanceof MessageResponse) {
           receivedMessages.add((MessageResponse) response);
         }
       }
+      
       MessageResponse oldest = MessageResponse.getOldestMessageResponse(receivedMessages);
       if (oldest != null) {
         System.out.println("[" + oldest.getTimestamp() + "]From " + oldest.getSender() + ": " + oldest.getText());

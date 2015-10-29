@@ -5,12 +5,12 @@ import java.util.concurrent.Callable;
 /**
  * Created by damachir on 10/29/15.
  */
-public class PeriodicLoggerConfig extends LoggerConfig {
+public class PeriodicTaskLoggerConfig extends LoggerConfig {
   private Callable task;
   private long initialLogTime;
   private long logTimePeriod;
 
-  public PeriodicLoggerConfig(LoggerConfig loggerConfig, Callable task, long initialLogTime, long logTimePeriod) {
+  public PeriodicTaskLoggerConfig(LoggerConfig loggerConfig, Callable task, long initialLogTime, long logTimePeriod) {
     super(loggerConfig);
     this.task = task;
     this.initialLogTime = initialLogTime;
