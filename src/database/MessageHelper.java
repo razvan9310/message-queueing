@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.logging.Logger;
 
@@ -17,7 +18,11 @@ public class MessageHelper {
   private static final String SEND_QUERY = "SELECT * FROM send_message(?, ?, ?)";
   private static final String SEND_WITH_RECEIVER_QUERY = "SELECT * FROM send_message(?, ?, ?, ?)";
 
+  private static final String MESSAGES_COUNT_QUERY = "SELECT COUNT(*) FROM message";
+  private static final int MESSAGES_COUNT_QUERY_RESULT_INDEX = 1;
+
   public static final double FAILED_MESSAGE_TIMESTAMP = -1.0;
+  public static final int FAILED_COUNT_MESSAGES_QUERY_RESULT = -1;
 
   private enum MessageParameters { ID, SENDER_OR_QUEUE, TEXT, TIMESTAMP }
   private enum PeekFromSenderParameters { SENDER, RECEIVER }
@@ -124,5 +129,18 @@ public class MessageHelper {
       LOGGER.warning("Failed to send message with receiver: " + e.getMessage());
     }
     return FAILED_MESSAGE_TIMESTAMP;
+  }
+
+  public static int countMessages(Connection connection) {
+    try {
+      Statement statement = connection.createStatement();
+      ResultSet results = statement.executeQuery(MESSAGES_COUNT_QUERY);
+      if (results.next()) {
+        return results.getInt(MESSAGES_COUNT_QUERY_RESULT_INDEX);
+      }
+    } catch (SQLException e) {
+      LOGGER.warning("Failed to query message count: " + e.getMessage());
+    }
+    return FAILED_COUNT_MESSAGES_QUERY_RESULT;
   }
 }

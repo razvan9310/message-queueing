@@ -1,7 +1,14 @@
 package server;
 
+import logging.PeriodicLogger;
+import logging.config.LoggerConfig;
+import logging.config.PeriodicLoggerConfig;
+import server.database.CountMessagesTask;
 import server.database.DatabaseThreadPoolExecutor;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -10,6 +17,7 @@ import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -23,9 +31,13 @@ public class Server {
   public static ExecutorService databaseExecutor;
 
   private ServerSocketChannel serverSocketChannel;
+  private int serverNumber;
+  private boolean logMessageCount;
 
-  public Server(ServerSocketChannel serverSocketChannel) {
+  public Server(ServerSocketChannel serverSocketChannel, int serverNumber, boolean logMessageCount) {
     this.serverSocketChannel = serverSocketChannel;
+    this.serverNumber = serverNumber;
+    this.logMessageCount = logMessageCount;
     clientExecutor = Executors.newFixedThreadPool(10);
     databaseExecutor = new DatabaseThreadPoolExecutor(10, 10, 0, TimeUnit.NANOSECONDS,
         new LinkedBlockingQueue<Runnable>());
@@ -36,6 +48,22 @@ public class Server {
       Selector selector = SelectorProvider.provider().openSelector();
       serverSocketChannel.configureBlocking(false);
       serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
+
+      PeriodicLogger periodicLogger = null;
+      if (logMessageCount) {
+        FileWriter fileWriter = new FileWriter(new File("messages-count" + serverNumber + ".log"), true);
+        BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+        LoggerConfig config = new LoggerConfig(1, 1, TimeUnit.SECONDS);
+        Callable<Integer> countMessagesTask = new Callable<Integer>() {
+          @Override
+          public Integer call() throws Exception {
+            CountMessagesTask databaseTask = new CountMessagesTask();
+            databaseTask.run();
+            return databaseTask.getMessagesCount();
+          }
+        };
+        periodicLogger = new PeriodicLogger(new PeriodicLoggerConfig(config, countMessagesTask, 1, 1), bufferedWriter);
+      }
 
       while (true) {
         if (selector.select() == 0) {
@@ -69,6 +97,9 @@ public class Server {
             if (requestData != null) {
               clientExecutor.execute(new RequestHandler(
                   connectionHandler, requestData, connectionHandler.getMessageSize()));
+            }
+            if (periodicLogger != null && !periodicLogger.isStarted()) {
+              periodicLogger.start();
             }
           }
         }

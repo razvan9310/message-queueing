@@ -8,12 +8,17 @@ import java.util.logging.Logger;
 public class ServerMain {
   private static final Logger LOGGER = Logger.getLogger(ServerMain.class.getName());
 
+  /**
+   * @param args 0: port; 1: server_number; 2: log_db_message_count
+   */
   public static void main(String args[]) {
     int port = Integer.parseInt(args[0]);
+    int serverNumber = Integer.parseInt(args[1]);
+    int logMessageCount = Integer.parseInt(args[2]);
     try {
       ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
       serverSocketChannel.socket().bind(new InetSocketAddress(port));
-      Server server = new Server(serverSocketChannel);
+      Server server = new Server(serverSocketChannel, serverNumber, logMessageCount == 1);
       LOGGER.info("Starting server");
       server.start();
     } catch (IOException e) {
@@ -21,25 +26,3 @@ public class ServerMain {
     }
   }
 }
-
-//public class ServerMain {
-//  private final static Logger LOGGER = Logger.getLogger(ServerMain.class
-//          .getName());
-//
-//  public static int SERVER_PORT = 9999;
-//
-//  public static void main(String args[]) {
-//    try {
-//      LogManager.getLogManager().readConfiguration(new FileInputStream("mylogging.properties"));
-//
-//      ServerSocketChannel ssc = ServerSocketChannel.open();
-//
-//      ssc.socket().bind(new InetSocketAddress(9999));
-//      Server server = new Server(ssc, new ClientConnectionFactory());
-//      LOGGER.info("Started server");
-//      server.run();
-//    } catch (IOException e) {
-//      LOGGER.log(Level.SEVERE, "Unexpected excetion in main", e);
-//    }
-//  }
-//}
