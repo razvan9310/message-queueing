@@ -11,6 +11,8 @@ import java.util.concurrent.ScheduledExecutorService;
  * Created by damachir on 10/28/15.
  */
 public class Logger {
+  private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(Logger.class.getName());
+
   private BufferedWriter bufferedWriter;
   private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -33,7 +35,7 @@ public class Logger {
     try {
       bufferedWriter.write(message);
     } catch (IOException e) {
-      // TODO
+      LOGGER.warning("Failed to log message: " + e.getMessage());
     }
   }
 }

@@ -10,6 +10,8 @@ import java.util.concurrent.ScheduledExecutorService;
  * Created by damachir on 10/29/15.
  */
 public class PeriodicLogger extends Logger {
+  private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(Logger.class.getName());
+
   private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
   private boolean started;
 
@@ -27,7 +29,7 @@ public class PeriodicLogger extends Logger {
         try {
           log(String.valueOf(periodicLoggerConfig.getTask().call()));
         } catch (Exception e) {
-          // TODO
+          LOGGER.warning("Failed to execute periodic logging task: " + e.getMessage());
         }
       }
     },

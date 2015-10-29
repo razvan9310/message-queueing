@@ -59,7 +59,7 @@ public class Server {
           @Override
           public String call() throws Exception {
             CountMessagesTask databaseTask = new CountMessagesTask();
-            databaseTask.run();
+            databaseExecutor.execute(new CountMessagesTask());
             return String.valueOf(System.nanoTime() - startTime) + " " + databaseTask.getMessagesCount();
           }
         };
