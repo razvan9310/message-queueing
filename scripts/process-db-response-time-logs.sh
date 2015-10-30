@@ -20,7 +20,7 @@ while (($i <= $ns)); do
 	i=$(($i + 1))
 done
 echo "Running db response time python script: $rt_py"
-sort -n ${ARR[@]} | python $rt_py > response-time.dat
+sort -n ${ARR[@]} | python $rt_py > db-response-time.dat
 echo "Running db response time gnuplot script: $rt_gnuplot"
 gnuplot $rt_gnuplot
 echo "Done processing db response time logs."
