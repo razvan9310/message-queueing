@@ -27,7 +27,7 @@ public class PeriodicTaskLogger extends Logger {
       @Override
       public void run() {
         try {
-          log(String.valueOf(periodicTaskLoggerConfig.getTask().call()));
+          log(String.valueOf(periodicTaskLoggerConfig.getTask().call()) + "\n");
         } catch (Exception e) {
           LOGGER.warning("Failed to execute periodic logging task: " + e.getMessage());
         }

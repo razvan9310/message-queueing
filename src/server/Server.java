@@ -69,7 +69,7 @@ public class Server {
 
       PeriodicTaskLogger databaseMessageCountLogger = null;
       if (logMessageCount) {
-        FileWriter fileWriter = new FileWriter(new File("messages-count" + serverNumber + ".log"), true);
+        FileWriter fileWriter = new FileWriter(new File("message-count" + serverNumber + ".log"), true);
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
         LoggerConfig config = new LoggerConfig(1, 1, TimeUnit.SECONDS);
         Callable<String> countMessagesTask = new Callable<String>() {
