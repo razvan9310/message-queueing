@@ -64,7 +64,7 @@ public class ClientMain {
     int queue = createQueueResponse.getQueue();
     // Populate list of receivers
     ArrayList<Integer> receivers = new ArrayList<>(totalClients - 1);
-    for (int i = 1; i <= totalClients; ++i) {
+    for (int i = 0; i < totalClients; ++i) {
       if (i != clientNumber) {
         receivers.add(i);
       }
