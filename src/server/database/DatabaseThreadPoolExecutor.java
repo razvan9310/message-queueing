@@ -3,6 +3,7 @@ package server.database;
 import logging.Logger;
 
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -22,10 +23,22 @@ public class DatabaseThreadPoolExecutor extends ThreadPoolExecutor {
   }
 
   @Override
+  protected <T>RunnableFuture<T> newTaskFor(Runnable runnable, T value) {
+    return new DatabaseFutureTask<>(runnable, value);
+  }
+
+  @Override
   protected void beforeExecute(Thread t, Runnable r) {
     DatabaseThread databaseThread = (DatabaseThread) t;
-    DatabaseRunnable databaseRunnable = (DatabaseRunnable) r;
-    databaseRunnable.setConnection(databaseThread.getConnection());
+    DatabaseRunnable databaseRunnable = null;
+    if (r instanceof DatabaseRunnable) {
+      databaseRunnable = (DatabaseRunnable) r;
+    } else if (r instanceof DatabaseFutureTask) {
+      databaseRunnable = (DatabaseRunnable) ((DatabaseFutureTask) r).getRunnable();
+    }
+    if (databaseRunnable != null) {
+      databaseRunnable.setConnection(databaseThread.getConnection());
+    }
   }
 
   @Override

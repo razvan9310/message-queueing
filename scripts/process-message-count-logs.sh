@@ -16,7 +16,7 @@ echo "Processing message count logs..."
 ARR=()
 i=1
 while (($i <= $ns)); do
-	ARR+=("messages-count$i.log")
+	ARR+=("message-count$i.log")
 	i=$(($i + 1))
 done
 echo "Running msg count python script: $msgcount_py"

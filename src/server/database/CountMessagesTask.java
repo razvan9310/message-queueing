@@ -6,14 +6,14 @@ import database.MessageHelper;
  * Created by damachir on 10/29/15.
  */
 public class CountMessagesTask extends DatabaseRunnable {
-  private int messagesCount = 0;
+  private int messageCount;
 
   @Override
   public void run() {
-    messagesCount = MessageHelper.countMessages(connection);
+    messageCount = MessageHelper.countMessages(connection);
   }
 
-  public int getMessagesCount() {
-    return messagesCount;
+  public int getMessageCount() {
+    return messageCount;
   }
 }

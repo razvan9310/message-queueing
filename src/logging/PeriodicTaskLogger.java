@@ -13,11 +13,9 @@ public class PeriodicTaskLogger extends Logger {
   private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(Logger.class.getName());
 
   private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-  private boolean started;
 
   public PeriodicTaskLogger(PeriodicTaskLoggerConfig config, BufferedWriter bufferedWriter) {
     super(config, bufferedWriter);
-    started = false;
   }
 
   @Override
@@ -38,10 +36,5 @@ public class PeriodicTaskLogger extends Logger {
         periodicTaskLoggerConfig.getTimeUnit());
 
     super.start();
-    started = true;
-  }
-
-  public boolean isStarted() {
-    return started;
   }
 }

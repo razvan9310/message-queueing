@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
@@ -67,7 +68,6 @@ public class Server {
       serverSocketChannel.configureBlocking(false);
       serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
 
-      PeriodicTaskLogger databaseMessageCountLogger = null;
       if (logMessageCount) {
         FileWriter fileWriter = new FileWriter(new File("message-count" + serverNumber + ".log"), true);
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
@@ -75,13 +75,16 @@ public class Server {
         Callable<String> countMessagesTask = new Callable<String>() {
           @Override
           public String call() throws Exception {
-            CountMessagesTask databaseTask = new CountMessagesTask();
-            databaseExecutor.execute(new CountMessagesTask());
-            return String.valueOf(System.nanoTime() - ServerMain.startupTime) + " " + databaseTask.getMessagesCount();
+            CountMessagesTask countMessagesTask = new CountMessagesTask();
+            Future result = databaseExecutor.submit(countMessagesTask);
+            result.get();
+            return String.valueOf(System.nanoTime() - ServerMain.startupTime) + " "
+                + countMessagesTask.getMessageCount();
           }
         };
-        databaseMessageCountLogger = new PeriodicTaskLogger(
+        PeriodicTaskLogger databaseMessageCountLogger = new PeriodicTaskLogger(
             new PeriodicTaskLoggerConfig(config, countMessagesTask, 1, 1), bufferedWriter);
+        databaseMessageCountLogger.start();
       }
 
       logging.Logger databaseResponseLogger = null;
@@ -125,9 +128,6 @@ public class Server {
             if (requestData != null) {
               clientExecutor.execute(new RequestHandler(
                   connectionHandler, requestData, connectionHandler.getMessageSize(), databaseResponseLogger));
-            }
-            if (databaseMessageCountLogger != null && !databaseMessageCountLogger.isStarted()) {
-              databaseMessageCountLogger.start();
             }
           }
         }

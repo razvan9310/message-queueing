@@ -23,7 +23,7 @@ public class ClientMain {
    *             5: log_response_time
    * @throws IOException
    */
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) throws IOException, InterruptedException {
     int port = 0;
     int clientNumber = 0;
     int totalClients = 0;
@@ -59,6 +59,8 @@ public class ClientMain {
       responseTimeLogger.log(String.valueOf(createQueueRequestTime - startTime) + " "
           + String.valueOf(createQueueElapsedTime) + "\n");
     }
+    Thread.sleep(50);
+    
     int queue = createQueueResponse.getQueue();
     // Populate list of receivers
     ArrayList<Integer> receivers = new ArrayList<>(totalClients - 1);
@@ -82,6 +84,7 @@ public class ClientMain {
         responseTimeLogger.log(String.valueOf(sendMessageRequestTime - startTime) + " "
             + String.valueOf(sendMessageElapsedTime) + "\n");
       }
+      Thread.sleep(10);
 
       if (sendMessageResponse.isSentSuccessfully()) {
         System.out.println("[" + sendMessageResponse.getArrivalTimestamp() + "]To " + receiver + ": " + text);
@@ -99,6 +102,7 @@ public class ClientMain {
         responseTimeLogger.log(String.valueOf(queryQueuesRequestTime - startTime) + " "
             + String.valueOf(queryQueuesElapsedTime) + "\n");
       }
+      Thread.sleep(10);
 
       List<Integer> receivedQueues = queryQueuesResponse.getQueues();
       ArrayList<MessageResponse> receivedMessages = new ArrayList<>();
@@ -113,6 +117,7 @@ public class ClientMain {
         if (response instanceof MessageResponse) {
           receivedMessages.add((MessageResponse) response);
         }
+        Thread.sleep(10);
       }
       
       MessageResponse oldest = MessageResponse.getOldestMessageResponse(receivedMessages);
@@ -126,11 +131,7 @@ public class ClientMain {
           responseTimeLogger.log(String.valueOf(popQueueRequestTime - startTime) + " "
               + String.valueOf(popQueueElapsedTime) + "\n");
         }
-      }
-      try {
-        Thread.sleep(50);
-      } catch (InterruptedException e) {
-        // TODO
+        Thread.sleep(10);
       }
     }
   }
