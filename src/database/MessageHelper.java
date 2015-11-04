@@ -54,9 +54,14 @@ public class MessageHelper {
       peekStatement.setInt(PeekParameters.RECEIVER.ordinal() + 1, receiver);
       long beforeQuery = System.nanoTime();
       ResultSet results = peekStatement.executeQuery();
-      long elapsed = System.nanoTime() - beforeQuery;
+      long afterQuery = System.nanoTime();
+      long elapsed = afterQuery - beforeQuery;
       if (logger != null) {
-        logger.log(String.valueOf(beforeQuery - ServerMain.startupTime) + " " + String.valueOf(elapsed) + "\n");
+        if (logger.getType() == logging.Logger.TYPE_DB_RESPONSE_TIME) {
+          logger.log(String.valueOf(beforeQuery - ServerMain.startupTime) + " " + String.valueOf(elapsed) + "\n");
+        } else if (logger.getType() == logging.Logger.TYPE_DB_THROUGHPUT) {
+          logger.log(String.valueOf(afterQuery - ServerMain.startupTime) + "\n");
+        }
       }
       if (results.next()) {
         Message message = getMessageFromQueryResults(results, true);
@@ -76,9 +81,14 @@ public class MessageHelper {
       peekStatement.setInt(PeekFromSenderParameters.RECEIVER.ordinal() + 1, receiver);
       long beforeQuery = System.nanoTime();
       ResultSet results = peekStatement.executeQuery();
-      long elapsed = System.nanoTime() - beforeQuery;
+      long afterQuery = System.nanoTime();
+      long elapsed = afterQuery - beforeQuery;
       if (logger != null) {
-        logger.log(String.valueOf(beforeQuery - ServerMain.startupTime) + " " + String.valueOf(elapsed) + "\n");
+        if (logger.getType() == logging.Logger.TYPE_DB_RESPONSE_TIME) {
+          logger.log(String.valueOf(beforeQuery - ServerMain.startupTime) + " " + String.valueOf(elapsed) + "\n");
+        } else if (logger.getType() == logging.Logger.TYPE_DB_THROUGHPUT) {
+          logger.log(String.valueOf(afterQuery - ServerMain.startupTime) + "\n");
+        }
       }
       if (results.next()) {
         Message message = getMessageFromQueryResults(results, false);
@@ -98,9 +108,14 @@ public class MessageHelper {
       popStatement.setInt(PopParameters.RECEIVER.ordinal() + 1, receiver);
       long beforeQuery = System.nanoTime();
       ResultSet results = popStatement.executeQuery();
-      long elapsed = System.nanoTime() - beforeQuery;
+      long afterQuery = System.nanoTime();
+      long elapsed = afterQuery - beforeQuery;
       if (logger != null) {
-        logger.log(String.valueOf(beforeQuery - ServerMain.startupTime) + " " + String.valueOf(elapsed) + "\n");
+        if (logger.getType() == logging.Logger.TYPE_DB_RESPONSE_TIME) {
+          logger.log(String.valueOf(beforeQuery - ServerMain.startupTime) + " " + String.valueOf(elapsed) + "\n");
+        } else if (logger.getType() == logging.Logger.TYPE_DB_THROUGHPUT) {
+          logger.log(String.valueOf(afterQuery - ServerMain.startupTime) + "\n");
+        }
       }
       if (results.next()) {
         Message message = getMessageFromQueryResults(results, true);
@@ -121,9 +136,14 @@ public class MessageHelper {
       sendStatement.setString(SendParameters.TEXT.ordinal() + 1, text);
       long beforeQuery = System.nanoTime();
       ResultSet results = sendStatement.executeQuery();
-      long elapsed = System.nanoTime() - beforeQuery;
+      long afterQuery = System.nanoTime();
+      long elapsed = afterQuery - beforeQuery;
       if (logger != null) {
-        logger.log(String.valueOf(beforeQuery - ServerMain.startupTime) + " " + String.valueOf(elapsed) + "\n");
+        if (logger.getType() == logging.Logger.TYPE_DB_RESPONSE_TIME) {
+          logger.log(String.valueOf(beforeQuery - ServerMain.startupTime) + " " + String.valueOf(elapsed) + "\n");
+        } else if (logger.getType() == logging.Logger.TYPE_DB_THROUGHPUT) {
+          logger.log(String.valueOf(afterQuery - ServerMain.startupTime) + "\n");
+        }
       }
       if (results.next()) {
         return getTimestampFromSendMessageResults(results);
@@ -144,9 +164,14 @@ public class MessageHelper {
       sendStatement.setString(SendWithReceiverParameters.TEXT.ordinal() + 1, text);
       long beforeQuery = System.nanoTime();
       ResultSet results = sendStatement.executeQuery();
-      long elapsed = System.nanoTime() - beforeQuery;
+      long afterQuery = System.nanoTime();
+      long elapsed = afterQuery - beforeQuery;
       if (logger != null) {
-        logger.log(String.valueOf(beforeQuery - ServerMain.startupTime) + " " + String.valueOf(elapsed) + "\n");
+        if (logger.getType() == logging.Logger.TYPE_DB_RESPONSE_TIME) {
+          logger.log(String.valueOf(beforeQuery - ServerMain.startupTime) + " " + String.valueOf(elapsed) + "\n");
+        } else if (logger.getType() == logging.Logger.TYPE_DB_THROUGHPUT) {
+          logger.log(String.valueOf(afterQuery - ServerMain.startupTime) + "\n");
+        }
       }
       if (results.next()) {
         return getTimestampFromSendMessageResults(results);

@@ -45,7 +45,8 @@ public class ClientMain {
     if (logResponseTime == 1) {
       FileWriter fileWriter = new FileWriter(new File("requests" + clientNumber + ".log"), true);
       BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-      responseTimeLogger = new logging.Logger(new LoggerConfig(1, 1, TimeUnit.SECONDS), bufferedWriter);
+      responseTimeLogger = new logging.Logger(
+          new LoggerConfig(1, 1, TimeUnit.SECONDS), bufferedWriter, logging.Logger.TYPE_OTHER);
       responseTimeLogger.start();
     }
     long startTime = System.nanoTime();

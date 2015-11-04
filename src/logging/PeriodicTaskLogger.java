@@ -15,7 +15,7 @@ public class PeriodicTaskLogger extends Logger {
   private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
   public PeriodicTaskLogger(PeriodicTaskLoggerConfig config, BufferedWriter bufferedWriter) {
-    super(config, bufferedWriter);
+    super(config, bufferedWriter, TYPE_OTHER);
   }
 
   @Override

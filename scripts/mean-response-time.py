@@ -29,6 +29,7 @@ for i in range(len(means)):
 	sum += means[i]
 	count += 1
 mean = sum / count
-print "global mean = " + str(mean)
-print "per-experiment means: " + str(means)
+
+for mean in means:
+	print str(mean) + " "
 			

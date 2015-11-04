@@ -13,14 +13,24 @@ import java.util.concurrent.ScheduledExecutorService;
 public class Logger {
   private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(Logger.class.getName());
 
+  public static final int TYPE_DB_RESPONSE_TIME = 0;
+  public static final int TYPE_DB_THROUGHPUT = 1;
+  public static final int TYPE_OTHER = 2;
+
   private BufferedWriter bufferedWriter;
   private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+  private int type;
 
   protected LoggerConfig config;
 
-  public Logger(LoggerConfig config, BufferedWriter bufferedWriter) {
+  public Logger(LoggerConfig config, BufferedWriter bufferedWriter, int type) {
     this.config = config;
     this.bufferedWriter = bufferedWriter;
+    this.type = type;
+  }
+
+  public int getType() {
+    return this.type;
   }
 
   public void start() {

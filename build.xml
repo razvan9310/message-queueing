@@ -21,46 +21,32 @@
 	<target name="create-tables">
 	  	<exec executable="/bin/bash">
 	  		<arg value="-c" />
-	  		<arg value="cat scripts/create_tables.sql | ${env.PSQL_PATH} -h ${env.PGSQL_SOCKET} -U ${env.DATABASE_USER} ${env.DATABASE_NAME}" />
+	  		<arg value="cat scripts/create-tables.sql | ${env.PSQL_PATH} -h ${env.PGSQL_SOCKET} -U ${env.DATABASE_USER} ${env.DATABASE_NAME}" />
 	  	</exec>
 	</target>
 
 	<target name="drop-tables">
 	  	<exec executable="/bin/bash">
 	  		<arg value="-c" />
-	  		<arg value="cat scripts/drop_tables.sql | ${env.PSQL_PATH} -h ${env.PGSQL_SOCKET} -U ${env.DATABASE_USER} ${env.DATABASE_NAME}" />
+	  		<arg value="cat scripts/drop-tables.sql | ${env.PSQL_PATH} -h ${env.PGSQL_SOCKET} -U ${env.DATABASE_USER} ${env.DATABASE_NAME}" />
 	  	</exec>
 	</target>
 
 	<target name="create-stored-procedures">
 	  	<exec executable="/bin/bash">
 	  		<arg value="-c" />
-	  		<arg value="cat scripts/create_stored_procedures.sql | ${env.PSQL_PATH} -h ${env.PGSQL_SOCKET} -U ${env.DATABASE_USER} ${env.DATABASE_NAME}" />
+	  		<arg value="cat scripts/create-stored-procedures.sql | ${env.PSQL_PATH} -h ${env.PGSQL_SOCKET} -U ${env.DATABASE_USER} ${env.DATABASE_NAME}" />
 	 	</exec>
 	</target>
 	
 	<target name="drop-stored-procedures">
 	 	 <exec executable="/bin/bash">
 	  		<arg value="-c" />
-	  		<arg value="cat scripts/drop_stored_procedures.sql | ${env.PSQL_PATH} -h ${env.PGSQL_SOCKET} -U ${env.DATABASE_USER} ${env.DATABASE_NAME}" />
+	  		<arg value="cat scripts/drop-stored-procedures.sql | ${env.PSQL_PATH} -h ${env.PGSQL_SOCKET} -U ${env.DATABASE_USER} ${env.DATABASE_NAME}" />
 	 	</exec>
 	</target>
 
-	<target name="create-indices">
-		<exec executable="/bin/bash">
-		  	<arg value="-c" />
-		  	<arg value="cat scripts/create_indices.sql | ${env.PSQL_PATH} -h ${env.PGSQL_SOCKET} -U ${env.DATABASE_USER} ${env.DATABASE_NAME}" />
-		</exec>
-	</target>
-
-	<target name="drop-indices">
-	 	 <exec executable="/bin/bash">
-	  		<arg value="-c" />
-	  		<arg value="cat scripts/drop_indices.sql | ${env.PSQL_PATH} -h ${env.PGSQL_SOCKET} -U ${env.DATABASE_USER} ${env.DATABASE_NAME}" />
-	 	</exec>
-	</target>
-	
-	<target name="bundle-server" depends="compile" description="Creates server.jar">
+	<target name="package-server" depends="compile" description="Creates server.jar">
 		<jar destfile="${dist.dir}/server.jar" basedir="${build.dir}/" excludes="client/**" >
 		<zipgroupfileset dir="lib" includes="postgre*.jar"/>
 		<manifest>
@@ -69,7 +55,7 @@
 		</jar>
 	</target>
 
-	<target name="bundle-client" depends="compile" description="Creates client.jar">
+	<target name="package-client" depends="compile" description="Creates client.jar">
 		<jar destfile="${dist.dir}/client.jar" basedir="${build.dir}/"
 	       excludes="server/**" >
 		    <manifest>

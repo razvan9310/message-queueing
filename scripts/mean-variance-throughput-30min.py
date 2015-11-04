@@ -1,4 +1,5 @@
 import collections
+import numpy as np
 from sys import stdin
 
 values = {}
@@ -17,6 +18,10 @@ while True:
 		values[sn] = 1
 
 sorted_values = collections.OrderedDict(sorted(values.items()))
+list = []
 for key in sorted_values:
-	print str(key) + " " + str(sorted_values[key])
+	list.append(sorted_values[key])
+
+print "Mean: " + str(np.mean(list))
+print "Variance: " + str(np.var(list))
 

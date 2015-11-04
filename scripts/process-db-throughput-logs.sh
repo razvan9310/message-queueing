@@ -16,12 +16,12 @@ echo "Processing throughput logs..."
 ARR=()
 i=0
 while (($i < $ns)); do
-	ARR+=("throughput$i.log")
+	ARR+=("db-throughput$i.log")
 	i=$(($i + 1))
 done
 echo "Running throughput python script: $tp_py"
-sort -n ${ARR[@]} | python $tp_py > throughput.dat
+sort -n ${ARR[@]} | python $tp_py > db-throughput.dat
 echo "Running throughput gnuplot script: $tp_gnuplot"
 gnuplot $tp_gnuplot
-echo "Done processing throughput logs."
+echo "Done processing db throughput logs."
 echo ""

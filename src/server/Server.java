@@ -35,14 +35,16 @@ public class Server {
   private int serverNumber;
   private boolean logThroughput;
   private boolean logDatabaseResponseTime;
+  private boolean logDatabaseThroughput;
   private boolean logMessageCount;
 
   public Server(ServerSocketChannel serverSocketChannel, int serverNumber, boolean logThroughput,
-      boolean logDatabaseResponseTime, boolean logMessageCount) {
+      boolean logDatabaseResponseTime, boolean logDatabaseThroughput, boolean logMessageCount) {
     this.serverSocketChannel = serverSocketChannel;
     this.serverNumber = serverNumber;
     this.logThroughput = logThroughput;
     this.logDatabaseResponseTime = logDatabaseResponseTime;
+    this.logDatabaseThroughput = logDatabaseThroughput;
     this.logMessageCount = logMessageCount;
 
     clientExecutor = Executors.newFixedThreadPool(10);
@@ -53,7 +55,7 @@ public class Server {
         FileWriter fileWriter = new FileWriter(new File("throughput" + serverNumber + ".log"), true);
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
         LoggerConfig config = new LoggerConfig(1, 1, TimeUnit.SECONDS);
-        throughputLogger = new logging.Logger(config, bufferedWriter);
+        throughputLogger = new logging.Logger(config, bufferedWriter, logging.Logger.TYPE_OTHER);
       } catch (IOException e) {
         LOGGER.warning("Failed to open throughput log: " + e.getMessage());
       }
@@ -92,7 +94,13 @@ public class Server {
         FileWriter fileWriter = new FileWriter(new File("db-response-time" + serverNumber + ".log"), true);
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
         LoggerConfig config = new LoggerConfig(1, 1, TimeUnit.SECONDS);
-        databaseResponseLogger = new logging.Logger(config, bufferedWriter);
+        databaseResponseLogger = new logging.Logger(config, bufferedWriter, logging.Logger.TYPE_DB_RESPONSE_TIME);
+        databaseResponseLogger.start();
+      } else if (logDatabaseThroughput) {
+        FileWriter fileWriter = new FileWriter(new File("db-throughput" + serverNumber + ".log"), true);
+        BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+        LoggerConfig config = new LoggerConfig(1, 1, TimeUnit.SECONDS);
+        databaseResponseLogger = new logging.Logger(config, bufferedWriter, logging.Logger.TYPE_DB_THROUGHPUT);
         databaseResponseLogger.start();
       }
 

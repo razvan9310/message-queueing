@@ -14,8 +14,8 @@ cd $logs_dir
 
 echo "Processing db response time logs..."
 ARR=()
-i=1
-while (($i <= $ns)); do
+i=0
+while (($i < $ns)); do
 	ARR+=("db-response-time$i.log")
 	i=$(($i + 1))
 done

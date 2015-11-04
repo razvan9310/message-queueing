@@ -30,9 +30,14 @@ public class QueueHelper {
       createQueueStatement.setInt(CREATOR_INDEX, creator);
       long beforeQuery = System.nanoTime();
       ResultSet results = createQueueStatement.executeQuery();
-      long elapsed = System.nanoTime() - beforeQuery;
+      long afterQuery = System.nanoTime();
+      long elapsed = afterQuery - beforeQuery;
       if (logger != null) {
-        logger.log(String.valueOf(beforeQuery - ServerMain.startupTime) + " " + String.valueOf(elapsed) + "\n");
+        if (logger.getType() == logging.Logger.TYPE_DB_RESPONSE_TIME) {
+          logger.log(String.valueOf(beforeQuery - ServerMain.startupTime) + " " + String.valueOf(elapsed) + "\n");
+        } else if (logger.getType() == logging.Logger.TYPE_DB_THROUGHPUT) {
+          logger.log(String.valueOf(afterQuery - ServerMain.startupTime) + "\n");
+        }
       }
       if (results.next()) {
         return results.getInt(QUEUE_INDEX);
@@ -52,9 +57,14 @@ public class QueueHelper {
       deleteStatement.setInt(QUEUE_INDEX, queue);
       long beforeQuery = System.nanoTime();
       deleteStatement.executeQuery();
-      long elapsed = System.nanoTime() - beforeQuery;
+      long afterQuery = System.nanoTime();
+      long elapsed = afterQuery - beforeQuery;
       if (logger != null) {
-        logger.log(String.valueOf(beforeQuery - ServerMain.startupTime) + " " + String.valueOf(elapsed) + "\n");
+        if (logger.getType() == logging.Logger.TYPE_DB_RESPONSE_TIME) {
+          logger.log(String.valueOf(beforeQuery - ServerMain.startupTime) + " " + String.valueOf(elapsed) + "\n");
+        } else if (logger.getType() == logging.Logger.TYPE_DB_THROUGHPUT) {
+          logger.log(String.valueOf(afterQuery - ServerMain.startupTime) + "\n");
+        }
       }
       return true;
     } catch (SQLException e) {
@@ -71,9 +81,14 @@ public class QueueHelper {
       queryQueuesStatement.setInt(RECEIVER_INDEX, receiver);
       long beforeQuery = System.nanoTime();
       ResultSet results = queryQueuesStatement.executeQuery();
-      long elapsed = System.nanoTime() - beforeQuery;
+      long afterQuery = System.nanoTime();
+      long elapsed = afterQuery - beforeQuery;
       if (logger != null) {
-        logger.log(String.valueOf(beforeQuery - ServerMain.startupTime) + " " + String.valueOf(elapsed) + "\n");
+        if (logger.getType() == logging.Logger.TYPE_DB_RESPONSE_TIME) {
+          logger.log(String.valueOf(beforeQuery - ServerMain.startupTime) + " " + String.valueOf(elapsed) + "\n");
+        } else if (logger.getType() == logging.Logger.TYPE_DB_THROUGHPUT) {
+          logger.log(String.valueOf(afterQuery - ServerMain.startupTime) + "\n");
+        }
       }
       while (results.next()) {
         queues.add(results.getInt(QUEUE_INDEX));
