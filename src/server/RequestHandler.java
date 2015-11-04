@@ -85,6 +85,7 @@ public class RequestHandler implements Runnable {
       Server.databaseExecutor.execute(databaseTask);
     } catch (IOException e) {
       LOGGER.warning("Failed to read stream from client: " + e.getMessage());
+      connectionHandler.closeConnection();
     }
   }
 }

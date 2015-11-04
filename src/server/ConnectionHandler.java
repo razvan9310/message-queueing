@@ -81,4 +81,12 @@ public class ConnectionHandler {
       dataIndex = 0;
     }
   }
+
+  public void closeConnection() {
+    try {
+      socketChannel.close();
+    } catch (IOException e) {
+      // Nothing, the client is gone
+    }
+  }
 }

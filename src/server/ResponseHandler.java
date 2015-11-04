@@ -27,6 +27,7 @@ public class ResponseHandler implements Runnable {
       connectionHandler.writeToSocketChannel(byteArrayOutputStream);
     } catch (IOException e) {
       LOGGER.warning("Failed to handle response: " + e.getMessage());
+      connectionHandler.closeConnection();
     }
   }
 }
