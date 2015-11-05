@@ -43,7 +43,7 @@ public class ClientMain {
 
     logging.Logger responseTimeLogger = null;
     if (logResponseTime == 1) {
-      FileWriter fileWriter = new FileWriter(new File("requests" + clientNumber + ".log"), true);
+      FileWriter fileWriter = new FileWriter(new File("response-time" + clientNumber + ".log"), true);
       BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
       responseTimeLogger = new logging.Logger(
           new LoggerConfig(1, 1, TimeUnit.SECONDS), bufferedWriter, logging.Logger.TYPE_OTHER);
@@ -73,8 +73,9 @@ public class ClientMain {
 
     while (true) {
       // Send a random message to a random receiver
-      int receiverIndex = ThreadLocalRandom.current().nextInt(0, totalClients - 1);
-      int receiver = receivers.get(receiverIndex);
+      // 20% chance of sending out a message without a receiver
+      int receiverIndex = ThreadLocalRandom.current().nextInt(0, totalClients + totalClients / 4);
+      int receiver = receiverIndex >= receivers.size() ? SendMessageRequest.NO_RECEIVER : receivers.get(receiverIndex);
       String text = Types.randomString(messageLength);
       // TODO: clientNumber should be a property of Client
       long sendMessageRequestTime = System.nanoTime();
@@ -94,7 +95,7 @@ public class ClientMain {
       }
       System.out.println();
 
-      // Retrieve the oldest message received
+      // Retrieve the oldest message addressed to this client
       long queryQueuesRequestTime = System.nanoTime();
       QueryQueuesResponse queryQueuesResponse = (QueryQueuesResponse) client.sendRequest(
           new QueryQueuesRequest(clientNumber));
@@ -122,6 +123,7 @@ public class ClientMain {
       }
       
       MessageResponse oldest = MessageResponse.getOldestMessageResponse(receivedMessages);
+
       if (oldest != null) {
         System.out.println("[" + oldest.getTimestamp() + "]From " + oldest.getSender() + ": " + oldest.getText());
         System.out.println();

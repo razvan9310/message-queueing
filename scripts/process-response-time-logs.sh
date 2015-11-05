@@ -16,7 +16,7 @@ echo "Processing response time logs..."
 ARR=()
 i=0
 while (($i < $nc)); do
-	ARR+=("requests$i.log")
+	ARR+=("response-time$i.log")
 	i=$(($i + 1))
 done
 echo "Running response time python script: $rt_py"

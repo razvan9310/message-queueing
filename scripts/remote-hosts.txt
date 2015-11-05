@@ -1,3 +1,6 @@
-ec2-user@ec2-52-28-60-178.eu-central-1.compute.amazonaws.com
-ec2-user@ec2-52-28-182-155.eu-central-1.compute.amazonaws.com
-ec2-user@ec2-52-29-14-191.eu-central-1.compute.amazonaws.com
+ec2-user@ec2-52-28-206-112.eu-central-1.compute.amazonaws.com
+10002
+ec2-user@ec2-52-29-122-208.eu-central-1.compute.amazonaws.com
+10002
+ec2-user@ec2-52-29-58-82.eu-central-1.compute.amazonaws.com
+10002

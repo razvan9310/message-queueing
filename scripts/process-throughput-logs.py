@@ -9,8 +9,8 @@ while True:
 		break
 	n = int(line)
 	sn = n / 10**9
-	if sn < 300 or sn > 1500:
-		continue
+	# if sn < 300 or sn > 1500:
+	#	continue
 	if values.get(sn) is not None:
 		values[sn] = 1 + values[sn]
 	else:
