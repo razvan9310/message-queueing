@@ -18,9 +18,9 @@ while True:
 		break
 	# Each line should be: RT1 RT2 RT3 RT4 RT5
 	line = line.split(' ')
-	line_ints = [int(n) for n in line]
-	response_times.append(line_ints)
-	means.append(sum(line_ints) / len(line_ints))
+	line_nums = [float(n) for n in line]
+	response_times.append(line_nums)
+	means.append(sum(line_nums) / len(line_nums))
 
 qs = []
 for i in range(8):

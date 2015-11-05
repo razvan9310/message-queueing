@@ -1,5 +1,6 @@
 package client;
 
+import database.QueueHelper;
 import logging.config.LoggerConfig;
 import message.*;
 import utils.Types;
@@ -23,7 +24,7 @@ public class ClientMain {
    *             5: log_response_time
    * @throws IOException
    */
-  public static void main(String[] args) throws IOException, InterruptedException {
+  public static void main(String[] args) {
     int port = 0;
     int clientNumber = 0;
     int totalClients = 0;
@@ -43,7 +44,13 @@ public class ClientMain {
 
     logging.Logger responseTimeLogger = null;
     if (logResponseTime == 1) {
-      FileWriter fileWriter = new FileWriter(new File("response-time" + clientNumber + ".log"), true);
+      FileWriter fileWriter;
+      try {
+        fileWriter = new FileWriter(new File("response-time" + clientNumber + ".log"), true);
+      } catch (IOException e) {
+        LOGGER.severe("Failed to open logging FileWriter: " + e.getMessage());
+        return;
+      }
       BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
       responseTimeLogger = new logging.Logger(
           new LoggerConfig(1, 1, TimeUnit.SECONDS), bufferedWriter, logging.Logger.TYPE_OTHER);
@@ -51,18 +58,36 @@ public class ClientMain {
     }
     long startTime = System.nanoTime();
 
-    Client client = new Client(args[0], port);
+    Client client;
+    try {
+      client = new Client(args[0], port);
+    } catch (IOException e) {
+      LOGGER.severe("Failed to create client: " + e.getMessage());
+      return;
+    }
     CreateQueueRequest createQueueRequest = new CreateQueueRequest(clientNumber);
+    CreateQueueResponse createQueueResponse;
     long createQueueRequestTime = System.nanoTime();
-    CreateQueueResponse createQueueResponse = (CreateQueueResponse) client.sendRequest(createQueueRequest);
+    try {
+       createQueueResponse = (CreateQueueResponse) client.sendRequest(createQueueRequest);
+    } catch (IOException e) {
+      LOGGER.severe("Failed to create queue: " + e.getMessage());
+      return;
+    }
     long createQueueElapsedTime = System.nanoTime() - createQueueRequestTime;
     if (responseTimeLogger != null) {
       responseTimeLogger.log(String.valueOf(createQueueRequestTime - startTime) + " "
           + String.valueOf(createQueueElapsedTime) + "\n");
     }
-    Thread.sleep(50);
+    try {
+      Thread.sleep(50);
+    } catch (InterruptedException e) {}
     
     int queue = createQueueResponse.getQueue();
+    if (queue == QueueHelper.NO_QUEUE) {
+      LOGGER.severe("Failed to create queue: database failure.");
+      return;
+    }
     // Populate list of receivers
     ArrayList<Integer> receivers = new ArrayList<>(totalClients - 1);
     for (int i = 0; i < totalClients; ++i) {
@@ -78,17 +103,24 @@ public class ClientMain {
       int receiver = receiverIndex >= receivers.size() ? SendMessageRequest.NO_RECEIVER : receivers.get(receiverIndex);
       String text = Types.randomString(messageLength);
       // TODO: clientNumber should be a property of Client
+      SendMessageResponse sendMessageResponse = null;
       long sendMessageRequestTime = System.nanoTime();
-      SendMessageResponse sendMessageResponse = (SendMessageResponse) client.sendRequest(
-          new SendMessageRequest(clientNumber, receiver, queue, text));
-      long sendMessageElapsedTime = System.nanoTime() - sendMessageRequestTime;
-      if (responseTimeLogger != null) {
-        responseTimeLogger.log(String.valueOf(sendMessageRequestTime - startTime) + " "
-            + String.valueOf(sendMessageElapsedTime) + "\n");
+      try {
+        sendMessageResponse = (SendMessageResponse) client.sendRequest(
+            new SendMessageRequest(clientNumber, receiver, queue, text));
+        long sendMessageElapsedTime = System.nanoTime() - sendMessageRequestTime;
+        if (responseTimeLogger != null) {
+          responseTimeLogger.log(String.valueOf(sendMessageRequestTime - startTime) + " "
+              + String.valueOf(sendMessageElapsedTime) + "\n");
+        }
+      } catch (IOException e) {
+        LOGGER.warning("Failed to send message: " + e.getMessage());
       }
-      Thread.sleep(10);
+      try {
+        Thread.sleep(10);
+      } catch (InterruptedException e) {}
 
-      if (sendMessageResponse.isSentSuccessfully()) {
+      if (sendMessageResponse != null && sendMessageResponse.isSentSuccessfully()) {
         System.out.println("[" + sendMessageResponse.getArrivalTimestamp() + "]To " + receiver + ": " + text);
       } else {
         System.out.println("Failed to send message.");
@@ -96,45 +128,67 @@ public class ClientMain {
       System.out.println();
 
       // Retrieve the oldest message addressed to this client
+      QueryQueuesResponse queryQueuesResponse = null;
       long queryQueuesRequestTime = System.nanoTime();
-      QueryQueuesResponse queryQueuesResponse = (QueryQueuesResponse) client.sendRequest(
-          new QueryQueuesRequest(clientNumber));
-      long queryQueuesElapsedTime = System.nanoTime() - queryQueuesRequestTime;
-      if (responseTimeLogger != null) {
-        responseTimeLogger.log(String.valueOf(queryQueuesRequestTime - startTime) + " "
-            + String.valueOf(queryQueuesElapsedTime) + "\n");
-      }
-      Thread.sleep(10);
-
-      List<Integer> receivedQueues = queryQueuesResponse.getQueues();
-      ArrayList<MessageResponse> receivedMessages = new ArrayList<>();
-      for (Integer receivedQueue : receivedQueues) {
-        long peekQueueRequestTime = System.nanoTime();
-        Response response = client.sendRequest(new PeekQueueRequest(clientNumber, receivedQueue));
-        long peekQueueElapsedTime = System.nanoTime() - peekQueueRequestTime;
+      try {
+        queryQueuesResponse = (QueryQueuesResponse) client.sendRequest(
+            new QueryQueuesRequest(clientNumber));
+        long queryQueuesElapsedTime = System.nanoTime() - queryQueuesRequestTime;
         if (responseTimeLogger != null) {
-          responseTimeLogger.log(String.valueOf(peekQueueRequestTime - startTime) + " "
-              + String.valueOf(peekQueueElapsedTime) + "\n");
+          responseTimeLogger.log(String.valueOf(queryQueuesRequestTime - startTime) + " "
+              + String.valueOf(queryQueuesElapsedTime) + "\n");
         }
-        if (response instanceof MessageResponse) {
-          receivedMessages.add((MessageResponse) response);
-        }
-        Thread.sleep(10);
+      } catch (IOException e) {
+        LOGGER.warning("Failed to query queues for client: " + e.getMessage());
       }
-      
-      MessageResponse oldest = MessageResponse.getOldestMessageResponse(receivedMessages);
+      try {
+        Thread.sleep(10);
+      } catch (InterruptedException e) {}
+
+      MessageResponse oldest = null;
+      if (queryQueuesResponse != null) {
+        List<Integer> receivedQueues = queryQueuesResponse.getQueues();
+        ArrayList<MessageResponse> receivedMessages = new ArrayList<>();
+        for (Integer receivedQueue : receivedQueues) {
+          Response response = null;
+          long peekQueueRequestTime = System.nanoTime();
+          try {
+            response = client.sendRequest(new PeekQueueRequest(clientNumber, receivedQueue));
+            long peekQueueElapsedTime = System.nanoTime() - peekQueueRequestTime;
+            if (responseTimeLogger != null) {
+              responseTimeLogger.log(String.valueOf(peekQueueRequestTime - startTime) + " "
+                  + String.valueOf(peekQueueElapsedTime) + "\n");
+            }
+          } catch (IOException e) {
+            LOGGER.warning("Failed to peek queue: " + e.getMessage());
+          }
+          if (response instanceof MessageResponse) {
+            receivedMessages.add((MessageResponse) response);
+          }
+          try {
+            Thread.sleep(10);
+          } catch (InterruptedException e) {}
+        }
+        oldest = MessageResponse.getOldestMessageResponse(receivedMessages);
+      }
 
       if (oldest != null) {
         System.out.println("[" + oldest.getTimestamp() + "]From " + oldest.getSender() + ": " + oldest.getText());
         System.out.println();
         long popQueueRequestTime = System.nanoTime();
-        client.sendRequest(new PopQueueRequest(clientNumber, oldest.getQueue()));
-        long popQueueElapsedTime = System.nanoTime() - popQueueRequestTime;
-        if (responseTimeLogger != null) {
-          responseTimeLogger.log(String.valueOf(popQueueRequestTime - startTime) + " "
-              + String.valueOf(popQueueElapsedTime) + "\n");
+        try {
+          client.sendRequest(new PopQueueRequest(clientNumber, oldest.getQueue()));
+          long popQueueElapsedTime = System.nanoTime() - popQueueRequestTime;
+          if (responseTimeLogger != null) {
+            responseTimeLogger.log(String.valueOf(popQueueRequestTime - startTime) + " "
+                + String.valueOf(popQueueElapsedTime) + "\n");
+          }
+        } catch (IOException e) {
+          LOGGER.warning("Failed to pop queue: " + e.getMessage());
         }
-        Thread.sleep(10);
+        try {
+          Thread.sleep(10);
+        } catch (InterruptedException e) {}
       }
     }
   }

@@ -39,7 +39,7 @@ public class Server {
   private boolean logMessageCount;
 
   public Server(ServerSocketChannel serverSocketChannel, int serverNumber, boolean logThroughput,
-      boolean logDatabaseResponseTime, boolean logDatabaseThroughput, boolean logMessageCount) {
+      boolean logDatabaseResponseTime, boolean logDatabaseThroughput, boolean logMessageCount, int dbThreads) {
     this.serverSocketChannel = serverSocketChannel;
     this.serverNumber = serverNumber;
     this.logThroughput = logThroughput;
@@ -60,7 +60,7 @@ public class Server {
         LOGGER.warning("Failed to open throughput log: " + e.getMessage());
       }
     }
-    databaseExecutor = new DatabaseThreadPoolExecutor(10, 10, 0, TimeUnit.NANOSECONDS,
+    databaseExecutor = new DatabaseThreadPoolExecutor(dbThreads, dbThreads, 0, TimeUnit.NANOSECONDS,
         new LinkedBlockingQueue<Runnable>(), throughputLogger);
   }
 
